@@ -19,6 +19,17 @@ public abstract class User {
     private String passwordHash;
     // الرول بيساعدنا في تحديد اذا كان بنكر او كستمر و عقب بيتاكد من اليوزر و الباسوورد اذا كان بنكر بيروح حق سستم البنكر اذا كستمر بيروح حق سستم الكستمر
     private String role;
+    public User(String userId, String name, String email,
+                String phone, String passwordHash, String role) {
+        // اول يوزر اهي الفيلد الحقيقي الموجود في الاوبجكت
+        // و ثاني يوزر اهي البارميتر اللي وصل للكونستركتر
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.passwordHash = passwordHash;
+        this.role = role;
+    }
     // getters
     // جنة يقول عطني الايدي و خليناه ببلك لان باقي
     // الكلاسات بيحتاجونه و ماحطيت شي بين القوسين لان بس بيقرا
@@ -26,10 +37,8 @@ public abstract class User {
         return userId;
     }
     //setters
-    // غير لنا القيمة
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    // يغسر لنا القيمة بس ماسويت سيترز حق اليوزر ولا الرول لان مانبيهم يتغيرون
+    // و حطينا فويد لان بس تغير القيمة
 
     public String getName() {
         return name;
@@ -67,9 +76,6 @@ public abstract class User {
         return role;
     }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
 
 
 
