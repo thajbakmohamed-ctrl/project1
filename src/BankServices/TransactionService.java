@@ -1,4 +1,4 @@
-package BankServises;
+package BankServices;
 
 public class TransactionService {
 }
