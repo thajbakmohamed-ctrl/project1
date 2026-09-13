@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.Optional;
 public class AccountService {
     private ArrayList<Account> accounts;
+    // نستخدم TransactionService عشان نسجل العمليات البنكية
+    private TransactionService transactionService;
 
-    public AccountService() {
+    public AccountService(TransactionService transactionService) {
         // ننشئ قائمة فاضية نقدر نضيف فيها الحسابات
         accounts = new ArrayList<>();
+
+        // نخزن TransactionService عشان نستخدمه في تسجيل العمليات
+        this.transactionService = transactionService;
     }
     public void addAccount(Account account) {
         // لو القائمة فيها اوردي و نبي نزيد قمية ف بتزيد عليها
@@ -25,8 +30,27 @@ public class AccountService {
     public ArrayList<Account> getAllAccounts() {
         return accounts;
     }
-    //1. يتأكد إن المبلغ أكبر من صفر
-    //2. يضيف المبلغ على الرصيد
+    // ترجع كل الحسابات الخاصة بعميل معين
+    public ArrayList<Account> getAccountsByCustomerId(String customerId) {
+
+        // نسوي قائمة فاضية نحط فيها حسابات العميل
+        ArrayList<Account> customerAccounts = new ArrayList<>();
+
+        // نمر على كل الحسابات الموجودة
+        for (Account account : accounts) {
+
+            // اذا رقم العميل في الحساب يساوي رقم العميل المطلوب
+            if (account.getCustomerId().equals(customerId)) {
+
+                // نضيف الحساب الى قائمة حسابات العميل
+                customerAccounts.add(account);
+            }
+        }
+
+        return customerAccounts;
+    }
+    //1- يتأكد إن المبلغ أكبر من صفر
+    //2- يضيف المبلغ على الرصيد
     public void deposit(Account account, double amount) {
         // إذا مبلغ الإيداع صفر أو أقل، نوقف العملية
         if (amount <= 0) {
@@ -35,6 +59,8 @@ public class AccountService {
         }
         // نجيب الرصيد الحالي ونضيف عليه مبلغ الإيداع ثم نحفظ الرصيد الجديد
         account.setBalance(account.getBalance() + amount);
+        // نسجل عملية الإيداع بعد تحديث الرصيد
+        transactionService.recordTransaction(account, "DEPOSIT", amount);
         // إذا العميل غطى الرصيد السالب نرجع نفعل الحساب
         if (account.getBalance() >= 0) {
             // نرجع الحساب فعال بعد ما يغطي العميل الرصيد السالب
@@ -73,6 +99,8 @@ public class AccountService {
         }
         // نحفظ الرصيد الجديد بعد السحب والرسوم
         account.setBalance(newBalance);
+        // نسجل عملية السحب بعد تحديث الرصيد
+        transactionService.recordTransaction(account, "WITHDRAW", amount);
 
     }
     // ميثود لتحويل مبلغ من حساب إلى حساب ثاني

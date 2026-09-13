@@ -1,6 +1,10 @@
 package BankServices;
 import BankModels.Transaction;
 import java.util.ArrayList;
+// اي اكاونت
+import BankModels.Account;
+// الوقت و التاريخ
+import java.time.LocalDateTime;
 
 public class TransactionService {
     private ArrayList<Transaction> transactions;
@@ -8,9 +12,29 @@ public class TransactionService {
     public TransactionService() {
         transactions = new ArrayList<>();
     }
-    // ميثود لإضافة عملية بنكية جديدة إلى قائمة العمليات
+    // ميثود عشان نضيف عملية بنكية جديدة الى قائمة العمليات
     public void addTransaction(Transaction transaction) {
-        // نضيف العملية البنكية الجديدة إلى قائمة العمليات
+        // نضيف العملية البنكية الجديدة الى قائمة العمليات
+        transactions.add(transaction);
+
+    }
+    // ميثود تسجل عملية بنكية جديدة
+    public void recordTransaction(Account account, String transactionType, double amount) {
+        // نسوي رقم خاص للعملية البنكية يعني بقدر اعرف جم
+        // ترانزكشن من رقم الايدي حق الترانزكشن
+        String transactionId = "T" + (transactions.size() + 1);
+        // ناخذ التاريخ والوقت الحالي للعملية
+        String dateTime = LocalDateTime.now().toString();
+        // ننشئ عملية بنكية جديدة ونحفظ فيها كل تفاصيل العملية
+        Transaction transaction = new Transaction(
+                transactionId,
+                account.getAccountId(),
+                transactionType,
+                amount,
+                account.getBalance(),
+                dateTime
+        );
+        // نضيف العملية الجديدة إلى قائمة العمليات
         transactions.add(transaction);
 
     }
@@ -24,9 +48,9 @@ public class TransactionService {
         ArrayList<Transaction> accountTransactions = new ArrayList<>();
         // نمر على كل العمليات الموجودة
         for (Transaction transaction : transactions) {
-            // إذا رقم الحساب في العملية يساوي رقم الحساب المطلوب
+            // اذا رقم الحساب في العملية يساوي رقم الحساب المطلوب
             if (transaction.getAccountId().equals(accountId)) {
-                // نضيف العملية المطابقة إلى قائمة عمليات الحساب
+                // نضيف العملية المطابقة الى قائمة عمليات الحساب
                 accountTransactions.add(transaction);
 
             }

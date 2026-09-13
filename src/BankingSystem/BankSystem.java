@@ -14,16 +14,15 @@ public class BankSystem {
     private TransactionService transactionService;
     private LoginService loginService;
     public BankSystem() {
-        // ننشئ خدمة العملاء أول ما يشتغل نظام البنك
+        // نسوي خدمة العملاء عشان نخزن وندير بيانات العملاء
         customerService = new CustomerService();
-        // ننشئ خدمة الحسابات أول ما يشتغل نظام البنك
-        accountService = new AccountService();
-        // ننشئ خدمة العمليات البنكية أول ما يشتغل نظام البنك
+      // نسوي خدمة العمليات البنكية عشان نسجل كل ال Transactions
         transactionService = new TransactionService();
-        // ننشئ خدمة تسجيل الدخول أول ما يشتغل نظام البنك
+    // نسوي خدمة الحسابات ونعطيها نفس TransactionService
+        // عشان أي Deposit أو Withdraw أو Transfer ينحفظ في نفس قائمة العمليات
+        accountService = new AccountService(transactionService);
+      // نسوي خدمة تسجيل الدخول عشان نتحقق من المستخدمين وكلمات المرور
         loginService = new LoginService();
-
-
     }
 
     public CustomerService getCustomerService() {

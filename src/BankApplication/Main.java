@@ -16,6 +16,10 @@ import java.util.Optional;
 import BankModels.Account;
 // نستخدم كلاس Customer عشان ننشئ العميل الجديد
 import BankModels.Customer;
+// اري لست للاكاونتات
+import java.util.ArrayList;
+//الترانزكشن الخاص بكل حساب
+import BankModels.Transaction;
 
 public class Main {
     // هذه الميثود هي أول مكان يبدأ منه تشغيل البرنامج
@@ -26,11 +30,11 @@ public class Main {
         String bankerPasswordHash = PasswordHashingUtility.hashPassword("1234");
         // ننشئ موظف بنك مبدئي عشان نقدر نجرب تسجيل الدخول
         Banker banker = new Banker(
-                "B001",
-                "U001",
-                "Admin Banker",
-                "banker@acme.com",
-                "33330000",
+                "B022",
+                "U022",
+                "Banker",
+                "banker09@acme.com",
+                "33330933",
                 bankerPasswordHash
         );
         // نضيف موظف البنك إلى قائمة المستخدمين عشان يقدر يسجل دخول
@@ -92,12 +96,13 @@ public class Main {
         // نقفل ال Scanner بعد ما ينتهي البرنامج
         scanner.close();
     }
+
     // قائمة الخيارات الخاصة بموظف البنك
-    public static void showBankerMenu(Scanner scanner, BankSystem bankSystem)  {
+    public static void showBankerMenu(Scanner scanner, BankSystem bankSystem) {
         System.out.println("BANKER MENU");
         System.out.println("1. Add New Customer");
-        System.out.println("2. View All Customers");
-        System.out.println("3. Search Customer");
+        System.out.println("2. View Customers Details");
+        System.out.println("3. View Customer Transaction History");
         System.out.println("4. Logout");
         System.out.print("Please select an option: ");
         // نقرأ اختيار موظف البنك من القائمة
@@ -169,19 +174,127 @@ public class Main {
                         );
                         // نضيف الحساب الجاري الجديد إلى قائمة الحسابات في النظام
                         bankSystem.getAccountService().addAccount(checkingAccount);
-                        // نضيف العميل الجديد إلى قائمة العملاء في النظام
-                        bankSystem.getCustomerService().addCustomer(customer);
+                        break;
+                    case 2:
+                        // موظف البنك اختار إنشاء حساب توفير
+                        scanner.nextLine();
 
-                        // نضيف العميل إلى قائمة المستخدمين عشان يقدر يسجل دخول
-                        bankSystem.getLoginService().addUser(customer);
+                        // نطلب رقم حساب التوفير
+                        System.out.print("Enter Savings Account ID: ");
+                        String savingsAccountId = scanner.nextLine();
+                        // نطلب الرصيد الابتدائي لحساب التوفير
+                        System.out.print("Enter Initial Balance: ");
+                        double savingsInitialBalance = scanner.nextDouble();
+                        // ننشئ حساب توفير جديد للعميل
+                        Account savingsAccount = new Account(
+                                savingsAccountId,
+                                customerId,
+                                "SAVINGS",
+                                savingsInitialBalance
+
+                        );
+                        // نضيف حساب التوفير الجديد إلى قائمة الحسابات في النظام
+                        bankSystem.getAccountService().addAccount(savingsAccount);
+
+                        break;
+                    case 3:
+                        // موظف البنك اختار إنشاء حساب جاري وحساب توفير
+                        scanner.nextLine();
+
+                        // نطلب رقم الحساب الجاري
+                        System.out.print("Enter Checking Account ID: ");
+                        String bothCheckingAccountId = scanner.nextLine();
+                        // نطلب الرصيد الابتدائي للحساب الجاري
+                        System.out.print("Enter Checking Initial Balance: ");
+                        double bothCheckingInitialBalance = scanner.nextDouble();
+                        // ننشئ الحساب الجاري للعميل
+                        Account bothCheckingAccount = new Account(
+                                bothCheckingAccountId,
+                                customerId,
+                                "CHECKING",
+                                bothCheckingInitialBalance
+                        );
+                        // نضيف الحساب الجاري إلى قائمة الحسابات في النظام
+                        bankSystem.getAccountService().addAccount(bothCheckingAccount);
+                        // ننظف السطر المتبقي بعد قراءة الرصيد
+                        scanner.nextLine();
+
+                        // نطلب رقم حساب التوفير
+                        System.out.print("Enter Savings Account ID: ");
+                        String bothSavingsAccountId = scanner.nextLine();
+                        // نطلب الرصيد الابتدائي لحساب التوفير
+                        System.out.print("Enter Savings Initial Balance: ");
+                        double bothSavingsInitialBalance = scanner.nextDouble();
+                        // ننشئ حساب التوفير للعميل
+                        Account bothSavingsAccount = new Account(
+                                bothSavingsAccountId,
+                                customerId,
+                                "SAVINGS",
+                                bothSavingsInitialBalance
+
+                        );
+                        // نضيف حساب التوفير إلى قائمة الحسابات في النظام
+                        bankSystem.getAccountService().addAccount(bothSavingsAccount);
 
                         break;
 
                 }
+                // نضيف العميل إلى قائمة المستخدمين عشان يقدر يسجل دخول
+                bankSystem.getLoginService().addUser(customer);
+                // نضيف العميل الجديد إلى قائمة العملاء في النظام
+                bankSystem.getCustomerService().addCustomer(customer);
+                // نطبع رسالة تأكيد بعد إضافة العميل بنجاح
+                System.out.println("Customer added successfully.");
 
                 break;
+            case 2:
+                // موظف البنك اختار عرض بيانات العملاء
+                System.out.println("CUSTOMERS DETAILS");
 
+                // نمر على كل العملاء الموجودين في قائمة العملاء
+                for (Customer existingCustomer : bankSystem.getCustomerService().getAllCustomers()) {
+
+                    System.out.println("Customer ID: " + existingCustomer.getCustomerId());
+                    System.out.println("User ID: " + existingCustomer.getUserId());
+                    System.out.println("Name: " + existingCustomer.getName());
+                    System.out.println("Email: " + existingCustomer.getEmail());
+                    System.out.println("Phone: " + existingCustomer.getPhone());
+                }
+                break;
+            case 3:
+                // موظف البنك اختار عرض تاريخ عمليات عميل معين
+                System.out.println("CUSTOMER TRANSACTION HISTORY");
+
+                // ننظف السطر المتبقي بعد قراءة رقم الاختيار
+                scanner.nextLine();
+
+                // نطلب رقم العميل اللي نبي نشوف عملياته
+                System.out.print("Enter Customer ID: ");
+                String historyCustomerId = scanner.nextLine();
+                // نجيب كل الحسابات الخاصة بالعميل المطلوب
+                ArrayList<Account> customerAccounts =
+                 bankSystem.getAccountService().getAccountsByCustomerId(historyCustomerId);
+                // نمر على كل حسابات العميل
+                for (Account account : customerAccounts) {
+                    // نطبع رقم الحساب ونوعه
+                    System.out.println("Account ID: " + account.getAccountId());
+                    System.out.println("Account Type: " + account.getAccountType());
+                    // نجيب كل العمليات الخاصة بهذا الحساب
+                    ArrayList<Transaction> accountTransactions =
+                            bankSystem.getTransactionService()
+                                    .getTransactionsByAccountId(account.getAccountId());
+                    // نمر على كل العمليات الخاصة بهذا الحساب
+                    for (Transaction transaction : accountTransactions) {
+
+                        System.out.println("Transaction ID: " + transaction.getTransactionId());
+                        System.out.println("Type: " + transaction.getTransactionType());
+                        System.out.println("Amount: " + transaction.getAmount());
+                        System.out.println("Balance After: " + transaction.getBalanceAfter());
+                        System.out.println("Date/Time: " + transaction.getDateTime());
+                    }
+                }
+
+                break;
         }
-
     }
 }
