@@ -2,6 +2,8 @@ package BankServices;
 import BankModels.User;
 import java.util.ArrayList;
 import java.util.Optional;
+// نستخدم أداة الهاشنق عشان نحول كلمة المرور المدخلة إلى Hash
+import BankUtilities.PasswordHashingUtility;
 
 public class LoginService {
     // استخدمنا يوزر لان مشترك بين البنكر و الكستمر و الاثنين يسسون لوق ان
@@ -33,6 +35,12 @@ public class LoginService {
         }
         // نطلع المستخدم الموجود داخل الـ Optional ونخزنه في متغير
         User user = foundUser.get();
+        // نحول كلمة المرور اللي دخلها المستخدم إلى Hash عشان نقارنها بالـ Hash المخزن
+        String hashedPassword = PasswordHashingUtility.hashPassword(password);
+        // إذا الهاش الناتج يساوي الهاش المخزن نرجع المستخدم
+        if (hashedPassword.equals(user.getPasswordHash())) {
+            return Optional.of(user);
+        }
         return Optional.empty();
     }
 }
