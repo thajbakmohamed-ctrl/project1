@@ -25,22 +25,95 @@ public class LoginService {
                 // يرجع أول مستخدم مطابق، وإذا ما لقى يرجع نتيجة فاضية
                 .findFirst();
     }
-    // ميثود لتسجيل دخول المستخدم باستخدام رقم المستخدم وكلمة المرور
+    // نسجل دخول المستخدم ونتابع عدد المحاولات الفاشلة
     public Optional<User> login(String userId, String password) {
-        // نبحث عن المستخدم باستخدام رقم المستخدم
+
+        // نبحث عن المستخدم باستخدام User ID
         Optional<User> foundUser = findUserById(userId);
-        // إذا المستخدم غير موجود نوقف تسجيل الدخول
+
+        // إذا المستخدم مو موجود نرجع نتيجة فاضية
         if (foundUser.isEmpty()) {
             return Optional.empty();
         }
-        // نطلع المستخدم الموجود داخل الـ Optional ونخزنه في متغير
+
+        // نطلع المستخدم من Optional
         User user = foundUser.get();
-        // نحول كلمة المرور اللي دخلها المستخدم إلى Hash عشان نقارنها بالـ Hash المخزن
-        String hashedPassword = PasswordHashingUtility.hashPassword(password);
-        // إذا الهاش الناتج يساوي الهاش المخزن نرجع المستخدم
+
+        // نجيب الوقت الحالي
+        long currentTime = System.currentTimeMillis();
+
+        // نتأكد إذا الحساب للحين مقفول
+        if (currentTime < user.getLockUntilTime()) {
+
+            // نخبر المستخدم إن الحساب مقفول مؤقتًا
+            System.out.println("Account is locked. Please try again after one minute.");
+
+            // نرفض تسجيل الدخول
+            return Optional.empty();
+        }
+
+        // إذا انتهت مدة القفل نصفر المحاولات
+        if (user.getLockUntilTime() > 0 &&
+                currentTime >= user.getLockUntilTime()) {
+
+            // نصفر عدد المحاولات الفاشلة
+            user.setFailedLoginAttempts(0);
+
+            // نشيل وقت القفل
+            user.setLockUntilTime(0);
+        }
+
+        // نحول كلمة المرور المدخلة إلى Hash
+        String hashedPassword =
+                PasswordHashingUtility.hashPassword(password);
+
+        // إذا كلمة المرور صحيحة
         if (hashedPassword.equals(user.getPasswordHash())) {
+
+            // نصفر المحاولات الفاشلة بعد تسجيل دخول ناجح
+            user.setFailedLoginAttempts(0);
+
+            // نرجع المستخدم
             return Optional.of(user);
         }
+
+        // إذا كلمة المرور غلط نزيد عدد المحاولات الفاشلة
+        user.setFailedLoginAttempts(
+                user.getFailedLoginAttempts() + 1
+        );
+
+        // إذا وصل إلى 3 محاولات فاشلة
+        if (user.getFailedLoginAttempts() >= 3) {
+
+            // نقفل الحساب لمدة دقيقة واحدة
+            user.setLockUntilTime(
+                    System.currentTimeMillis() + 60000
+            );
+
+            // نخبر المستخدم إن الحساب انقفل
+            System.out.println(
+                    "Too many failed login attempts. Account locked for one minute."
+            );
+        }
+
+        // تسجيل الدخول فشل
         return Optional.empty();
+    }
+    // نتحقق إذا المستخدم مقفول مؤقتًا
+    public boolean isUserLocked(String userId) {
+
+        // نبحث عن المستخدم
+        Optional<User> foundUser = findUserById(userId);
+
+        // إذا المستخدم مو موجود فهو مو مقفول
+        if (foundUser.isEmpty()) {
+            return false;
+        }
+
+        // نطلع المستخدم من Optional
+        User user = foundUser.get();
+
+        // نرجع true إذا وقت القفل للحين ما انتهى
+        return System.currentTimeMillis() < user.getLockUntilTime();
     }
 }

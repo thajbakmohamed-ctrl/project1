@@ -2,7 +2,8 @@ package BankServices;
 import BankModels.Account;
 import java.util.ArrayList;
 import java.util.Optional;
-public class AccountService {
+// AccountService يطبق العمليات الموجودة في BankingOperations
+public class AccountService implements BankingOperations {
     private ArrayList<Account> accounts;
     // نستخدم TransactionService عشان نسجل العمليات البنكية
     private TransactionService transactionService;
@@ -49,79 +50,115 @@ public class AccountService {
 
         return customerAccounts;
     }
-    //1- يتأكد إن المبلغ أكبر من صفر
-    //2- يضيف المبلغ على الرصيد
+    @Override
+    // نودع مبلغ داخل الحساب
     public void deposit(Account account, double amount) {
-        // إذا مبلغ الإيداع صفر أو أقل، نوقف العملية
+
+        // إذا المبلغ صفر أو سالب نوقف العملية
         if (amount <= 0) {
-            // الريترن بدون قيمة لان الفويد موجودة و بس بتقرا
             return;
         }
-        // نجيب الرصيد الحالي ونضيف عليه مبلغ الإيداع ثم نحفظ الرصيد الجديد
-        account.setBalance(account.getBalance() + amount);
-        // نسجل عملية الإيداع بعد تحديث الرصيد
-        transactionService.recordTransaction(account, "DEPOSIT", amount);
-        // إذا العميل غطى الرصيد السالب نرجع نفعل الحساب
-        if (account.getBalance() >= 0) {
-            // نرجع الحساب فعال بعد ما يغطي العميل الرصيد السالب
-            account.setActive(true);
-            // نصفر عدد مرات الأوفردرافت بعد ما العميل يغطي الرصيد السالب
-            account.setOverdraftCount(0);
 
+        // نضيف المبلغ إلى الرصيد الحالي
+        account.setBalance(account.getBalance() + amount);
+
+        // نسجل عملية الإيداع
+        transactionService.recordTransaction(
+                account,
+                "DEPOSIT",
+                amount
+        );
+
+        // إذا العميل غطى الرصيد السالب والرسوم
+        if (account.getBalance() >= 0) {
+
+            // نرجع الحساب فعال
+            account.setActive(true);
+
+            // نصفر عدد مرات الـ Overdraft بعد تسوية الرصيد
+            account.setOverdraftCount(0);
         }
     }
-    // ميثود لسحب مبلغ من الحساب
-    public void withdraw(Account account, double amount) {
-        // إذا مبلغ السحب صفر أو أقل، نوقف العملية
+    @Override
+    // نسحب مبلغ من الحساب ونرجع true إذا العملية نجحت
+    public boolean withdraw(Account account, double amount) {
+
+        // إذا المبلغ صفر أو سالب نرفض العملية
         if (amount <= 0) {
-            return;
+            return false;
         }
-        // إذا الحساب مو فعال نوقف عملية السحب
+
+        // إذا الحساب غير فعال نرفض السحب
         if (!account.isActive()) {
-            return;
+            return false;
         }
+
+        // إذا الرصيد سالب والمبلغ أكبر من 100 نرفض العملية
         if (account.getBalance() < 0 && amount > 100) {
-            return;
+            return false;
         }
-        // نحسب شنو بيصير الرصيد بعد عملية السحب
+
+        // نحسب الرصيد الجديد بعد السحب
         double newBalance = account.getBalance() - amount;
-        // إذا الرصيد الجديد صار بالسالب فهذا يعني صار أوفردرافت
+
+        // إذا صار الرصيد سالب نضيف رسوم Overdraft
         if (newBalance < 0) {
-            // إذا دخل الحساب بالسالب نخصم رسوم أوفردرافت 35
+
+            // نخصم رسوم Overdraft بقيمة 35
             newBalance = newBalance - 35;
-            // نزيد عدد مرات الأوفردرافت بواحد
-            account.setOverdraftCount(account.getOverdraftCount() + 1);
-            // إذا صار الأوفردرافت مرتين أو أكثر نخلي الحساب غير فعال
+
+            // نزيد عدد مرات الـ Overdraft
+            account.setOverdraftCount(
+                    account.getOverdraftCount() + 1
+            );
+
+            // إذا وصل العميل إلى مرتين Overdraft نعطل الحساب
             if (account.getOverdraftCount() >= 2) {
                 account.setActive(false);
             }
-
         }
-        // نحفظ الرصيد الجديد بعد السحب والرسوم
+
+        // نخزن الرصيد الجديد
         account.setBalance(newBalance);
-        // نسجل عملية السحب بعد تحديث الرصيد
-        transactionService.recordTransaction(account, "WITHDRAW", amount);
 
+        // نسجل عملية السحب في سجل العمليات
+        transactionService.recordTransaction(
+                account,
+                "WITHDRAW",
+                amount
+        );
+
+        // العملية نجحت
+        return true;
     }
-    // ميثود لتحويل مبلغ من حساب إلى حساب ثاني
-    public void transfer(Account fromAccount, Account toAccount, double amount) {
-        // إذا مبلغ التحويل صفر أو أقل نوقف العملية
+    @Override
+    // نحول مبلغ من حساب إلى حساب ونرجع true إذا العملية نجحت
+    public boolean transfer(Account fromAccount, Account toAccount, double amount) {
+
+        // إذا المبلغ صفر أو سالب نرفض العملية
         if (amount <= 0) {
-            return;
+            return false;
         }
-        // إذا الحساب اللي بنحول منه مو فعال نوقف التحويل
-        if (!fromAccount.isActive()) {
-            return;
+
+        // نتأكد إن الحساب المرسل والمستلم مو نفس الحساب
+        if (fromAccount.getAccountId().equals(toAccount.getAccountId())) {
+            return false;
         }
-        // إذا رصيد الحساب المرسل بالسالب والمبلغ أكبر من 100 نوقف التحويل
-        if (fromAccount.getBalance() < 0 && amount > 100) {
-            return;
+
+        // نحاول نسحب المبلغ من الحساب المرسل
+        boolean withdrawSuccessful =
+                withdraw(fromAccount, amount);
+
+        // إذا السحب فشل نوقف التحويل
+        if (!withdrawSuccessful) {
+            return false;
         }
-        // نسحب مبلغ التحويل من الحساب المرسل
-        withdraw(fromAccount, amount);
-        // نضيف مبلغ التحويل إلى الحساب المستلم
+
+        // إذا السحب نجح نودع المبلغ في الحساب المستلم
         deposit(toAccount, amount);
 
+        // التحويل نجح
+        return true;
     }
 
 }

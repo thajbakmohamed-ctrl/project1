@@ -19,6 +19,11 @@ public abstract class User {
     private String passwordHash;
     // الرول بيساعدنا في تحديد اذا كان بنكر او كستمر و عقب بيتاكد من اليوزر و الباسوورد اذا كان بنكر بيروح حق سستم البنكر اذا كستمر بيروح حق سستم الكستمر
     private String role;
+    // نخزن عدد محاولات تسجيل الدخول الفاشلة
+    private int failedLoginAttempts;
+
+    // نخزن الوقت اللي ينتهي فيه قفل الحساب
+    private long lockUntilTime;
     public User(String userId, String name, String email,
                 String phone, String passwordHash, String role) {
         // اول يوزر اهي الفيلد الحقيقي الموجود في الاوبجكت
@@ -29,6 +34,11 @@ public abstract class User {
         this.phone = phone;
         this.passwordHash = passwordHash;
         this.role = role;
+        // في البداية ما عندنا محاولات فاشلة
+        this.failedLoginAttempts = 0;
+
+        // في البداية الحساب مو مقفول
+        this.lockUntilTime = 0;
     }
     // getters
     // جنة يقول عطني الايدي و خليناه ببلك لان باقي
@@ -74,6 +84,26 @@ public abstract class User {
 
     public String getRole() {
         return role;
+    }
+    // نرجع عدد محاولات تسجيل الدخول الفاشلة
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    // نغير عدد محاولات تسجيل الدخول الفاشلة
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+
+    // نرجع الوقت اللي ينتهي فيه قفل الحساب
+    public long getLockUntilTime() {
+        return lockUntilTime;
+    }
+
+    // نغير الوقت اللي ينتهي فيه قفل الحساب
+    public void setLockUntilTime(long lockUntilTime) {
+        this.lockUntilTime = lockUntilTime;
     }
 
 

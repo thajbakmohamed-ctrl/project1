@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import BankModels.Account;
 // الوقت و التاريخ
 import java.time.LocalDateTime;
+import BankUtilities.FileHandlingUtility;
 
 public class TransactionService {
     private ArrayList<Transaction> transactions;
@@ -36,6 +37,8 @@ public class TransactionService {
         );
         // نضيف العملية الجديدة إلى قائمة العمليات
         transactions.add(transaction);
+        // نحفظ العملية البنكية داخل ملف
+        FileHandlingUtility.saveTransaction(transaction);
 
     }
     // ترجع كل العمليات البنكية الموجودة في القائمة
