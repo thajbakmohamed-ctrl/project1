@@ -1,9 +1,8 @@
 package BankExceptions;
 
-// Exception خاصة بقفل الحساب بعد محاولات تسجيل دخول فاشلة
+// Custom exception used when a user account is locked
 public class AccountLockedException extends RuntimeException {
 
-    // نستقبل رسالة الخطأ ونرسلها للـException الأساسية
     public AccountLockedException(String message) {
         super(message);
     }

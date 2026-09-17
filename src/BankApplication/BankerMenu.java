@@ -19,8 +19,9 @@ import BankUtilities.FileHandlingUtility;
 import BankModels.DebitCard;
 // نستخدم Optional لأن البحث عن الحساب ممكن يلقى نتيجة أو لا
 import java.util.Optional;
-
+// Handles the banker menu and banker operations
 public class BankerMenu {
+    // Checks that the Account ID is unique
     // نطلب Account ID ونتأكد أنه غير مستخدم
     private static String readUniqueAccountId(Scanner scanner, BankSystem
             bankSystem, String message) {
@@ -46,6 +47,7 @@ public class BankerMenu {
         boolean bankerMenuRunning = true;
         while (bankerMenuRunning) {
             // نعرض قائمة الخيارات الخاصة بموظف البنك
+            // Displays and manages the banker menu
             System.out.println("Banker Menu");
             System.out.println("1. Add New Customer");
             System.out.println("2. View Customers Details");
@@ -123,6 +125,7 @@ public class BankerMenu {
                     switch (accountTypeChoice) {
                         case 1:
                             // موظف البنك اختار انشاء حساب جاري
+                            // Creates a checking account for the customer
                             System.out.println("CHECKING ACCOUNT");
                             // ننظف السطر المتبقي بعد قراءة رقم الاختيار
                             scanner.nextLine();
@@ -222,6 +225,7 @@ public class BankerMenu {
                             FileHandlingUtility.saveDebitCard(defaultBothSavingsCard);
                             break;
                     }
+                    // Saves the new customer in the banking system
                     // نضيف العميل حق قائمة المستخدمين عشان يقدر يسجل دخول
                     bankSystem.getLoginService().addUser(customer);
                     // نضيف العميل حق قائمة العملاء في النظام
@@ -235,6 +239,7 @@ public class BankerMenu {
                     break;
                 case 2:
                     // موظف البنك اختار عرض بيانات العملاء
+                    // Displays all customer details
                     System.out.println("CUSTOMERS DETAILS");
                     // نمر على كل العملاء الموجودين في قائمة العملاء
                     for (Customer existingCustomer :
@@ -249,6 +254,7 @@ public class BankerMenu {
                     break;
                 case 3:
                     // موظف البنك اختار عرض تاريخ عمليات عميل معين
+                    // Displays the transaction history for a selected customer
                     System.out.println("CUSTOMER TRANSACTION HISTORY");
                     // ننظف السطر المتبقي بعد قراءة رقم الاختيار
                     scanner.nextLine();
@@ -298,6 +304,7 @@ public class BankerMenu {
                     break;
                 case 4: {
                     // موظف البنك اختار مراجعة طلبات ترقية البطاقات
+                    // Reviews pending card upgrade requests
                     System.out.println("PENDING CARD UPGRADE REQUESTS");
                     // نسوي قائمة خاصة بالبطاقات اللي عليها طلب Upgrade
                     ArrayList<DebitCard> pendingUpgradeRequests = new ArrayList<>();
@@ -384,6 +391,7 @@ public class BankerMenu {
                 }
                 case 5:
                     // موظف البنك اختار تسجيل الخروج
+                    // Logs the banker out of the system
                     System.out.println("Logout selected.");
                     // نوقف قائمة موظف البنك ونرجع إلى شاشة تسجيل الدخول
                     bankerMenuRunning = false;

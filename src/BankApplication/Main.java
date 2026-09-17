@@ -27,12 +27,15 @@ import BankModels.DebitCard;
 // نستخدم Exception خاصة بقفل الحساب
 import BankExceptions.AccountLockedException;
 
+// Starts and controls the ACME Bank application
 public class Main {
     // هذه الميثود هي أول مكان يبدأ منه تشغيل البرنامج
+    // Main method where the program starts
     public static void main(String[] args) {
         // ننشئ نظام البنك عشان نقدر نستخدم الخدمات الموجودة داخله
         BankSystem bankSystem = new BankSystem();
         // نقرا أسماء كل ملفات العملاء المحفوظة
+        // Loads saved customers from files
         ArrayList<String> customerFileNames = FileHandlingUtility.readCustomerFileNames();
         // نمر على كل اسم ملف عميل
         for (String customerFileName : customerFileNames) {
@@ -48,6 +51,7 @@ public class Main {
         }
 
         // نقرا أسماء كل ملفات الحسابات المحفوظة
+        // Loads saved accounts from files
         ArrayList<String> accountFileNames = FileHandlingUtility.readAccountFileNames();
         // نمر على كل اسم ملف حساب
         for (String accountFileName : accountFileNames) {
@@ -59,6 +63,7 @@ public class Main {
                 bankSystem.getAccountService().addAccount(savedAccount);
             }
         }
+        // Loads saved debit cards from files
         // نقرا أسماء كل ملفات البطاقات المحفوظة
         ArrayList<String> debitCardFileNames = FileHandlingUtility.readDebitCardFileNames();
 
@@ -76,6 +81,7 @@ public class Main {
         }
 
         // نقرا أسماء كل ملفات العمليات المحفوظة
+        // Loads saved transactions from files
         ArrayList<String> transactionFileNames =
         FileHandlingUtility.readTransactionFileNames();
 
@@ -94,6 +100,7 @@ public class Main {
         }
 
         // نحاول نقرا موظف البنك من الملف
+        // Loads the banker or creates a default banker if needed
         Banker banker = FileHandlingUtility.readBanker("Banker-Banker-B022.txt");
 
         // إذا ملف موظف البنك مو موجود ننشئ موظف بنك مبدئي
@@ -128,6 +135,7 @@ public class Main {
             switch (choice) {
                 case 1:
                     // المستخدم اختار تسجيل الدخول
+                    // Handles user login
                     System.out.println("Login selected.");
                     // ننظف السطر المتبقي بعد قراءة الرقم
                     scanner.nextLine();
@@ -140,6 +148,7 @@ public class Main {
                     // نقرا كلمة المرور
                     String password = scanner.nextLine();
                     // نحاول نسوي تسجيل الدخول
+                    // Handles login and account lock exceptions
                     try {
                         // نجرب تسجيل الدخول باستخدام User ID وكلمة المرور
                         Optional<User> loggedInUser = bankSystem.getLoginService()
@@ -151,6 +160,7 @@ public class Main {
                             // نطلع المستخدم من داخل Optional
                             User currentUser = loggedInUser.get();
                             // نتأكد إذا المستخدم موظف بنك
+                            // Opens the correct menu based on the users role
                             if (currentUser.getRole().equals("BANKER")) {
                                 // نفتح قائمة موظف البنك
                                 BankerMenu.showBankerMenu(scanner, bankSystem);
@@ -160,6 +170,7 @@ public class Main {
                                 // نحول User إلى Customer
                                 Customer customer = (Customer) currentUser;
 
+                                // Forces the customer to change a temporary password
                                 // نتأكد إذا العميل للحين يستخدم الباسورد المؤقت
                                 if (customer.isMustChangePassword()) {
                                     // نخبر العميل إنه لازم يغير الباسورد
@@ -206,6 +217,7 @@ public class Main {
 
                 case 2:
                     // المستخدم اختار الخروج من النظام
+                    // Exits the banking application
                     System.out.println("Thank you for using ACME Bank System.");
                     // نخلي running تساوي false عشان نوقف البرنامج
                     running = false;

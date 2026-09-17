@@ -27,9 +27,10 @@ import java.time.DayOfWeek;
 // نستخدم Exception خاصة بالحساب غير الفعال
 import BankExceptions.InactiveAccountException;
 import BankExceptions.DailyLimitExceededException;
-
+// Handles the customer menu and customer banking operations
     public class CustomerMenu {
         // ميثود تعرض قائمة العميل بعد تسجيل الدخول
+        // Displays and manages the customer menu after login
         public static void showCustomerMenu(
                 Scanner scanner, BankSystem bankSystem, User currentUser) {
             // نحول المستخدم الحالي إلى Customer
@@ -54,6 +55,7 @@ import BankExceptions.DailyLimitExceededException;
                 // نحدد شنو يسوي البرنامج حسب اختيار العميل
                 switch (customerChoice) {
                     case 1:
+                        // Displays all accounts owned by the current customer
                         // العميل اختار عرض حساباته
                         System.out.println("VIEW MY ACCOUNTS");
                         // نجيب كل الحسابات الخاصة بالعميل الحالي
@@ -69,6 +71,7 @@ import BankExceptions.DailyLimitExceededException;
                         break;
 
                     case 2:
+                        // Deposits money into the customer's account
                         // العميل اختار إيداع مبلغ
                         System.out.println("DEPOSIT");
                         // ننظف السطر المتبقي بعد قراءة رقم الاختيار
@@ -168,6 +171,7 @@ import BankExceptions.DailyLimitExceededException;
                         break;
 
                     case 3:
+                        // Withdraws money and checks the daily card limit
                         // العميل اختار سحب مبلغ
                         System.out.println("WITHDRAW");
                         // ننظف السطر المتبقي بعد قراءة رقم الاختيار
@@ -206,6 +210,7 @@ import BankExceptions.DailyLimitExceededException;
                                         // نحسب شكثر بيصير مجموع السحب اليوم
                                         double totalWithdrawToday = card.getDailyWithdrawUsed() + withdrawAmount;
                                         // نحاول نفحص الحد اليومي ونسوي عملية السحب
+                                        // Handles withdrawal limits and account exceptions
                                         try {
                                             // إذا تجاوز الحد اليومي هالميثود ترمي Exception
                                             bankSystem.getDebitCardService().checkWithdrawDailyLimit(
@@ -282,6 +287,7 @@ import BankExceptions.DailyLimitExceededException;
                         // ننهي case 3
                         break;
                     case 4:
+                        // Transfers money between accounts
                         // العميل اختار تحويل مبلغ
                         System.out.println("TRANSFER");
                         // ننظف السطر المتبقي بعد قراءة رقم الاختيار
@@ -533,6 +539,7 @@ import BankExceptions.DailyLimitExceededException;
                         // ننهي case 4
                         break;
                     case 5:
+                        // Displays the customer's transaction history
                         // العميل اختار عرض تاريخ عملياته
                         System.out.println("TRANSACTION HISTORY");
                         // نجيب كل الحسابات الخاصة بالعميل الحالي
@@ -582,6 +589,7 @@ import BankExceptions.DailyLimitExceededException;
                         }
                         break;
                     case 6:
+                        // Allows the customer to request a debit card upgrade
                         // العميل اختار طلب ترقية البطاقة
                         System.out.println("REQUEST CARD UPGRADE");
                         // ننظف السطر المتبقي بعد قراءة رقم الاختيار
@@ -701,6 +709,7 @@ import BankExceptions.DailyLimitExceededException;
                         // ننهي case 6
                         break;
                     case 7:
+                        // Displays a detailed statement for the selected account
                         // العميل اختار عرض كشف حساب تفصيلي
                         System.out.println("DETAILED ACCOUNT STATEMENT");
                         // ننظف السطر المتبقي بعد قراءة رقم الاختيار
@@ -808,6 +817,7 @@ import BankExceptions.DailyLimitExceededException;
                         // ننهي case 7
                         break;
                     case 8: {
+                        // Filters account transactions by a selected date period
                         // العميل اختار فلترة العمليات حسب التاريخ
                         System.out.println("FILTER TRANSACTIONS");
                         // ننظف السطر المتبقي بعد قراءة رقم الاختيار
@@ -963,6 +973,7 @@ import BankExceptions.DailyLimitExceededException;
                         break;
                     }
                     case 9:
+                        // Logs the customer out of the system
                         // العميل اختار تسجيل الخروج
                         System.out.println("Logout selected");
                         // نوقف قائمة العميل ونرجع إلى شاشة تسجيل الدخول

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 // AccountService يطبق العمليات الموجودة في BankingOperations
+// Handles account operations such as deposit, withdraw, and transfer
 public class AccountService implements BankingOperations {
     private ArrayList<Account> accounts;
     // نستخدم TransactionService عشان نسجل العمليات البنكية
@@ -15,12 +16,12 @@ public class AccountService implements BankingOperations {
         // نخزن TransactionService عشان نستخدمه في تسجيل العمليات
         this.transactionService = transactionService;
     }
-
+    // Adds a new account to the account list
     public void addAccount(Account account) {
         // نضيف الحساب إلى قائمة الحسابات
         accounts.add(account);
     }
-
+    // Finds an account using the Account ID
     public Optional<Account> findAccountById(String accountId) {
         // نبحث عن الحساب باستخدام Account ID
         return accounts.stream()
@@ -54,6 +55,7 @@ public class AccountService implements BankingOperations {
     }
     @Override
     // نودع مبلغ داخل الحساب
+    // Deposits money into the account
     public void deposit(Account account, double amount) {
         // إذا المبلغ صفر أو سالب نوقف العملية
         if (amount <= 0) {
@@ -76,6 +78,7 @@ public class AccountService implements BankingOperations {
 
     @Override
     // نسحب مبلغ من الحساب ونرجع true إذا العملية نجحت
+    // Withdraws money and applies the overdraft rules
     public boolean withdraw(Account account,
             double amount) {
         // إذا المبلغ صفر أو سالب نرفض العملية
@@ -104,6 +107,7 @@ public class AccountService implements BankingOperations {
         double newBalance = account.getBalance() - amount;
 
         // إذا صار الرصيد سالب نضيف رسوم Overdraft
+        // Applies a $35 fee when the balance becomes negative
         if (newBalance < 0) {
             // نخصم رسوم Overdraft بقيمة 35
             newBalance = newBalance - 35;
@@ -114,6 +118,7 @@ public class AccountService implements BankingOperations {
             System.out.println("Overdraft fee: $35");
             System.out.println("Overdraft count: " + account.getOverdraftCount());
             // إذا وصل العميل إلى مرتين Overdraft نعطل الحساب
+            // Deactivates the account after two overdrafts
             if (account.getOverdraftCount() >= 2) {
                 account.setActive(false);
                 System.out.println("Account is now inactive due to repeated overdrafts.");
@@ -130,6 +135,7 @@ public class AccountService implements BankingOperations {
 
     @Override
     // نحول مبلغ من حساب إلى حساب ثاني
+    // Transfers money from one account to another
     public boolean transfer(Account fromAccount, Account toAccount, double amount) {
         // نتأكد إن مبلغ التحويل صحيح
         if (amount <= 0) {
@@ -157,6 +163,7 @@ public class AccountService implements BankingOperations {
         double newFromBalance = fromAccount.getBalance() - amount;
 
         // إذا التحويل سبب Overdraft
+        // Applies the overdraft rules if the transfer causes a negative balance
         if (newFromBalance < 0) {
             // نخصم رسوم الـOverdraft وهي 35
             newFromBalance = newFromBalance - 35;
@@ -185,6 +192,7 @@ public class AccountService implements BankingOperations {
         toAccount.setBalance(toAccount.getBalance() + amount);
 
         // إذا الحساب المستلم غطى الرصيد السالب
+        // Reactivates the account when the negative balance is covered
         if (toAccount.getBalance() >= 0) {
             // نعيد تفعيل الحساب
             toAccount.setActive(true);

@@ -11,6 +11,7 @@ import java.util.Optional;
 // نستخدم LocalDate عشان نعرف تاريخ اليوم
 import java.time.LocalDate;
 import BankExceptions.DailyLimitExceededException;
+// Manages debit cards and their daily transaction limits
 public class DebitCardService {
     // قائمة نخزن فيها كل بطاقات الخصم
     private ArrayList<DebitCard> debitCards;
@@ -21,6 +22,7 @@ public class DebitCardService {
         // ننشئ ArrayList فاضية
         debitCards = new ArrayList<>();
     }
+    // Creates a default Mastercard for a new account
     // ننشئ بطاقة Mastercard افتراضية لأي حساب جديد
     public DebitCard createDefaultCard(Account account) {
         // نسوي Card ID باستخدام رقم الحساب عشان يكون مميز
@@ -41,12 +43,13 @@ public class DebitCardService {
         return debitCard;
     }
 
-
+    // Adds a debit card to the system
     // نضيف بطاقة جديدة إلى النظام
     public void addDebitCard(DebitCard debitCard) {
         // نضيف البطاقة إلى القائمة
         debitCards.add(debitCard);
     }
+    // Finds a debit card using the Account ID
     // نبحث عن البطاقة باستخدام رقم الحساب
     public Optional<DebitCard> findCardByAccountId(String accountId) {
         // نمر على كل البطاقات ونبحث عن البطاقة المرتبطة بالحساب
@@ -61,7 +64,7 @@ public class DebitCardService {
         // نرجع قائمة البطاقات
         return debitCards;
     }
-
+    // Returns the daily withdrawal limit based on the card type
     // نرجع الحد المسموح للسحب حسب نوع البطاقة
     public double getWithdrawLimit(String cardType) {
         // إذا نوع البطاقة Mastercard
@@ -80,6 +83,7 @@ public class DebitCardService {
         // إذا نوع البطاقة غير معروف نرجع صفر
         return 0;
     }
+    // Returns the daily transfer limit based on the card type
     // نرجع الحد المسموح للتحويل حسب نوع البطاقة
     public double getTransferLimit(String cardType) {
         // إذا نوع البطاقة Mastercard
@@ -98,6 +102,7 @@ public class DebitCardService {
         // إذا نوع البطاقة غير معروف نرجع صفر
         return 0;
     }
+    // Returns the daily transfer limit between the customer's own accounts
     // نجيب حد التحويل اليومي بين حسابات نفس العميل
     public double getOwnTransferLimit(String cardType) {
 
@@ -118,21 +123,21 @@ public class DebitCardService {
         return 0;
     }
 
-
+    // Returns the daily deposit limit
     // نجيب حد الإيداع اليومي
     public double getDepositLimit(String cardType) {
         // كل أنواع البطاقات لها نفس حد الإيداع اليومي
         return 100000;
     }
 
-
+    // Returns the daily deposit limit for the customer's own account
     // نجيب حد الإيداع اليومي في حساب العميل نفسه
     public double getOwnDepositLimit(String cardType) {
         // كل أنواع البطاقات لها نفس حد الإيداع في الحساب الشخصي
         return 200000;
     }
 
-
+    // Resets the daily card usage when a new day starts
     // نتأكد إن استخدام البطاقة محسوب لليوم الحالي
     public void resetDailyUsageIfNeeded(DebitCard card) {
         // نجيب تاريخ اليوم
@@ -151,6 +156,7 @@ public class DebitCardService {
             card.setDailyUsageDate(today);
         }
     }
+    // Checks that the withdrawal does not exceed the daily card limit
     // نتأكد إن عملية السحب ما تتجاوز الحد اليومي للبطاقة
     public void checkWithdrawDailyLimit(DebitCard card, double amount) {
         // نصفر الاستخدام إذا دخل يوم جديد
