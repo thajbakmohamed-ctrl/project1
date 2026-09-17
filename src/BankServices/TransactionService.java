@@ -8,18 +8,22 @@ import java.time.LocalDateTime;
 import BankUtilities.FileHandlingUtility;
 // نستخدم LocalDateTime عشان نتعامل مع تاريخ ووقت العملية
 import java.time.LocalDateTime;
+// Handles recording, storing, and filtering banking transactions
 public class TransactionService {
     private ArrayList<Transaction> transactions;
+    // Creates an empty list to store transactions
     // ننشئ قائمة فاضية نقدر نضيف فيها العمليات البنكية
     public TransactionService() {
         transactions = new ArrayList<>();
     }
+    // Adds a transaction to the transaction list
     // ميثود عشان نضيف عملية بنكية جديدة الى قائمة العمليات
     public void addTransaction(Transaction transaction) {
         // نضيف العملية البنكية الجديدة الى قائمة العمليات
         transactions.add(transaction);
 
     }
+    // Records and saves a new banking transaction
     // ميثود تسجل عملية بنكية جديدة
     public void recordTransaction(Account account, String transactionType, double amount) {
         // نسوي رقم خاص للعملية البنكية يعني بقدر اعرف جم
@@ -36,6 +40,7 @@ public class TransactionService {
         FileHandlingUtility.saveTransaction(transaction);
 
     }
+    // Records a transfer transaction with the related account
     // نسجل عملية تحويل ونخزن رقم الحساب الثاني المرتبط فيها
     public void recordTransferTransaction(Account account, String transactionType,
             double amount, String relatedAccountId) {
@@ -59,10 +64,12 @@ public class TransactionService {
         // نحفظ العملية داخل الملف
         FileHandlingUtility.saveTransaction(transaction);
     }
+    // Returns all transactions in the system
     // ترجع كل العمليات البنكية الموجودة في القائمة
     public ArrayList<Transaction> getAllTransactions() {
         return transactions;
     }
+    // Returns all transactions for a specific account
     // ترجع العمليات الخاصة بحساب معين
     public ArrayList<Transaction> getTransactionsByAccountId(String accountId) {
         // نسوي قائمة فاضية نحط فيها العمليات الخاصة بالحساب المطلوب
@@ -80,6 +87,7 @@ public class TransactionService {
         return accountTransactions;
 
     }
+    // Filters account transactions between two dates
     // نرجع عمليات حساب معين بين تاريخين محددين
     public ArrayList<Transaction> filterTransactionsByDate(String accountId,
             LocalDateTime startDate, LocalDateTime endDate) {

@@ -1,5 +1,5 @@
 package BankModels;
-
+// Stores the account information and account status
 public class Account {
     private String accountId;
     private String customerId;
@@ -8,7 +8,7 @@ public class Account {
     private boolean isActive;
     // يحسب الحساب جم مرة صار بالماينس
     private int overdraftCount;
-
+    // Creates a new account with an active status and zero overdrafts
     public Account(String accountId, String customerId, String accountType, double balance) {
         this.accountId = accountId;
         this.customerId = customerId;

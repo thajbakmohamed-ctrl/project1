@@ -15,8 +15,9 @@ import BankModels.DebitCard;
 // نستخدم DebitCard عشان نحفظ ونقرا بيانات البطاقة
 import java.util.ArrayList;
 // نستخدم ArrayList عشان نخزن مجموعة من البيانات
-
+// Handles saving and reading bank data using files
 public class FileHandlingUtility {
+    // Saves customer information to a file
     public static void saveCustomer(Customer customer) {
         // نحفظ بيانات العميل داخل ملف نصي واضح
 
@@ -70,6 +71,7 @@ public class FileHandlingUtility {
     }
 
     // نحفظ بيانات العميل مع كل الحسابات التابعة له
+    // Saves the customer together with their account information
     public static void saveCustomerWithAccounts(Customer customer,
             ArrayList<Account> accounts) {
         // نسوي اسم ملف العميل باستخدام اسمه ورقمه
@@ -130,7 +132,7 @@ public class FileHandlingUtility {
             System.out.println("Error saving customer with accounts.");
         }
     }
-
+    // Reads customer information from a saved file
     public static Customer readCustomer(String fileName) {
         // نقرا بيانات العميل من الملف النصي
 
@@ -236,7 +238,7 @@ public class FileHandlingUtility {
         return customerFileNames;
         // نرجع قائمة أسماء ملفات العملاء
     }
-
+    // Saves banker information to a file
     public static void saveBanker(Banker banker) {
         // نحفظ بيانات موظف البنك داخل ملف نصي واضح
         String fileName = "Banker-" + banker.getName()
@@ -269,7 +271,7 @@ public class FileHandlingUtility {
             // نطبع رسالة خطأ
         }
     }
-
+    // Reads banker information from a saved file
     public static Banker readBanker(String fileName) {
         // نقرا بيانات موظف البنك من الملف النصي
 
@@ -306,7 +308,7 @@ public class FileHandlingUtility {
         return null;
         // إذا ما قدرنا نقرا موظف البنك نرجع null
     }
-
+    // Saves account information to a file
     public static void saveAccount(Account account) {
         // نحفظ بيانات الحساب داخل ملف نصي واضح
         String fileName = "Account-" + account.getAccountId() + ".txt";
@@ -340,7 +342,7 @@ public class FileHandlingUtility {
             // نطبع رسالة خطأ
         }
     }
-
+    // Reads account information from a saved file
     public static Account readAccount(String fileName) {
         // نقرا بيانات الحساب من الملف النصي
         try {
@@ -449,7 +451,7 @@ public class FileHandlingUtility {
         return accountFileNames;
         // نرجع قائمة أسماء ملفات الحسابات
     }
-
+    // Saves debit card information and daily usage to a file
     // نحفظ بيانات بطاقة الخصم داخل ملف نصي
     public static void saveDebitCard(DebitCard debitCard) {
         // نسوي اسم الملف باستخدام Card ID
@@ -507,7 +509,7 @@ public class FileHandlingUtility {
             System.out.println("Error saving debit card file.");
         }
     }
-
+    // Reads debit card information from a saved file
     // نقرا بيانات بطاقة الخصم من الملف النصي
     public static DebitCard readDebitCard(String fileName) {
 
@@ -795,6 +797,7 @@ public class FileHandlingUtility {
         // نرجع كل العمليات اللي قريناها
         return transactions;
     }
+    // Saves a banking transaction to a file
     public static void saveTransaction(Transaction transaction) {
         // نحفظ العملية البنكية داخل ملف نصي واضح
         String fileName = "Transactions-" + transaction.getAccountId() + ".txt";
