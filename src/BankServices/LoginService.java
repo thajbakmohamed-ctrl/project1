@@ -1,119 +1,104 @@
 package BankServices;
+
+// نستخدم User عشان نخزن ونتعامل مع المستخدمين
 import BankModels.User;
-import java.util.ArrayList;
-import java.util.Optional;
-// نستخدم أداة الهاشنق عشان نحول كلمة المرور المدخلة إلى Hash
+// نستخدم PasswordHashingUtility عشان نحول الباسورد إلى Hash
 import BankUtilities.PasswordHashingUtility;
+// نستخدم Exception خاصة بقفل الحساب
+import BankExceptions.AccountLockedException;
+// نستخدم ArrayList لتخزين المستخدمين
+import java.util.ArrayList;
+// نستخدم Optional للبحث عن المستخدم بدون ما نرجع null
+import java.util.Optional;
 
 public class LoginService {
-    // استخدمنا يوزر لان مشترك بين البنكر و الكستمر و الاثنين يسسون لوق ان
+    // نخزن جميع المستخدمين اللي يقدرون يسجلون دخول
     private ArrayList<User> users;
-    // ننشئ قائمة فاضية نقدر نخزن فيها كل المستخدمين
+    // Constructor
     public LoginService() {
+        // ننشئ قائمة فاضية للمستخدمين
         users = new ArrayList<>();
     }
-    // ميثود لإضافة مستخدم جديد إلى قائمة المستخدمين
-    public void addUser(User user) {
-        // نضيف المستخدم الجديد إلى قائمة المستخدمين
-        users.add(user);
-
+    // نضيف مستخدم إلى نظام تسجيل الدخول
+    public void addUser(User user) {users.add(user);
     }
+    // نبحث عن مستخدم باستخدام User ID
     public Optional<User> findUserById(String userId) {
-        // نمر على كل المستخدمين ونبحث عن المستخدم اللي رقمه يساوي الرقم المطلوب
-        return users.stream()
-                .filter(user -> user.getUserId().equals(userId))
-                // يرجع أول مستخدم مطابق، وإذا ما لقى يرجع نتيجة فاضية
-                .findFirst();
+
+        // نستخدم Stream و Lambda للبحث عن المستخدم
+        return users.stream().filter(user -> user.getUserId().equals(userId)).findFirst();
     }
-    // نسجل دخول المستخدم ونتابع عدد المحاولات الفاشلة
+    // ميثود تسجيل الدخول
     public Optional<User> login(String userId, String password) {
-
-        // نبحث عن المستخدم باستخدام User ID
-        Optional<User> foundUser = findUserById(userId);
-
-        // إذا المستخدم مو موجود نرجع نتيجة فاضية
-        if (foundUser.isEmpty()) {
+        // نبحث عن المستخدم
+        Optional<User> optionalUser = findUserById(userId);
+        // إذا المستخدم غير موجود
+        if (optionalUser.isEmpty()) {
             return Optional.empty();
         }
-
-        // نطلع المستخدم من Optional
-        User user = foundUser.get();
-
+        // ناخذ المستخدم من Optional
+        User user = optionalUser.get();
         // نجيب الوقت الحالي
         long currentTime = System.currentTimeMillis();
+        // إذا الحساب للحين مقفول
+        if (user.getLockUntilTime() > 0 && currentTime < user.getLockUntilTime()) {
 
-        // نتأكد إذا الحساب للحين مقفول
-        if (currentTime < user.getLockUntilTime()) {
-
-            // نخبر المستخدم إن الحساب مقفول مؤقتًا
-            System.out.println("Account is locked. Please try again after one minute.");
-
-            // نرفض تسجيل الدخول
-            return Optional.empty();
+            // نرمي Exception خاصة بقفل الحساب
+            throw new AccountLockedException("Account is locked. Please try again later.");
         }
-
-        // إذا انتهت مدة القفل نصفر المحاولات
-        if (user.getLockUntilTime() > 0 &&
-                currentTime >= user.getLockUntilTime()) {
-
+        // إذا مدة القفل انتهت
+        if (user.getLockUntilTime() > 0 && currentTime >= user.getLockUntilTime()) {
             // نصفر عدد المحاولات الفاشلة
             user.setFailedLoginAttempts(0);
-
             // نشيل وقت القفل
             user.setLockUntilTime(0);
         }
+        // نحول الباسورد اللي أدخله المستخدم إلى Hash
+        String enteredPasswordHash = PasswordHashingUtility.hashPassword(password);
 
-        // نحول كلمة المرور المدخلة إلى Hash
-        String hashedPassword =
-                PasswordHashingUtility.hashPassword(password);
-
-        // إذا كلمة المرور صحيحة
-        if (hashedPassword.equals(user.getPasswordHash())) {
-
-            // نصفر المحاولات الفاشلة بعد تسجيل دخول ناجح
+        // نتأكد إذا الباسورد صحيح
+        if (user.getPasswordHash().equals(enteredPasswordHash)) {
+            // إذا نجح الدخول نصفر المحاولات الفاشلة
             user.setFailedLoginAttempts(0);
-
+            // نشيل أي قفل سابق
+            user.setLockUntilTime(0);
             // نرجع المستخدم
             return Optional.of(user);
         }
 
-        // إذا كلمة المرور غلط نزيد عدد المحاولات الفاشلة
-        user.setFailedLoginAttempts(
-                user.getFailedLoginAttempts() + 1
-        );
+        // إذا الباسورد غلط نزيد عدد المحاولات الفاشلة
+        user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
 
-        // إذا وصل إلى 3 محاولات فاشلة
+        // إذا وصل المستخدم إلى 3 محاولات فاشلة
         if (user.getFailedLoginAttempts() >= 3) {
 
             // نقفل الحساب لمدة دقيقة واحدة
-            user.setLockUntilTime(
-                    System.currentTimeMillis() + 60000
-            );
+            user.setLockUntilTime(System.currentTimeMillis() + 60000);
 
-            // نخبر المستخدم إن الحساب انقفل
-            System.out.println(
-                    "Too many failed login attempts. Account locked for one minute."
-            );
+            // نرمي Exception خاصة بقفل الحساب
+            throw new AccountLockedException(
+                    "Account locked for 1 minute after 3 failed login attempts.");
         }
-
-        // تسجيل الدخول فشل
+        // إذا الباسورد غلط لكن ما وصل 3 محاولات
         return Optional.empty();
     }
-    // نتحقق إذا المستخدم مقفول مؤقتًا
+    // نتحقق إذا المستخدم مقفول حالياً
     public boolean isUserLocked(String userId) {
-
         // نبحث عن المستخدم
-        Optional<User> foundUser = findUserById(userId);
+        Optional<User> optionalUser = findUserById(userId);
+        // إذا المستخدم غير موجود
+        if (optionalUser.isEmpty()) {
 
-        // إذا المستخدم مو موجود فهو مو مقفول
-        if (foundUser.isEmpty()) {
             return false;
         }
-
-        // نطلع المستخدم من Optional
-        User user = foundUser.get();
-
-        // نرجع true إذا وقت القفل للحين ما انتهى
-        return System.currentTimeMillis() < user.getLockUntilTime();
+        // ناخذ المستخدم
+        User user = optionalUser.get();
+        // نتحقق إذا وقت القفل للحين ما انتهى
+        return user.getLockUntilTime() > 0 && System.currentTimeMillis()
+                < user.getLockUntilTime();
+    }
+    // نرجع جميع المستخدمين إذا احتجناهم
+    public ArrayList<User> getAllUsers() {
+        return users;
     }
 }

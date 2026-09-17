@@ -7,6 +7,7 @@ public class Transaction {
     private double amount;
     private double balanceAfter;
     private String dateTime;
+    private String relatedAccountId;
 
     public Transaction(String transactionId, String accountId, String transactionType,
                        double amount,
@@ -65,5 +66,14 @@ public class Transaction {
 
     public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
+    }
+    // نرجع رقم الحساب الثاني المرتبط بالعملية
+    public String getRelatedAccountId() {
+        return relatedAccountId;
+    }
+
+    // نخزن رقم الحساب الثاني المرتبط بالعملية
+    public void setRelatedAccountId(String relatedAccountId) {
+        this.relatedAccountId = relatedAccountId;
     }
 }

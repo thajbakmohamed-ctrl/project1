@@ -6,7 +6,8 @@ import BankModels.Account;
 // الوقت و التاريخ
 import java.time.LocalDateTime;
 import BankUtilities.FileHandlingUtility;
-
+// نستخدم LocalDateTime عشان نتعامل مع تاريخ ووقت العملية
+import java.time.LocalDateTime;
 public class TransactionService {
     private ArrayList<Transaction> transactions;
     // ننشئ قائمة فاضية نقدر نضيف فيها العمليات البنكية
@@ -27,19 +28,36 @@ public class TransactionService {
         // ناخذ التاريخ والوقت الحالي للعملية
         String dateTime = LocalDateTime.now().toString();
         // ننشئ عملية بنكية جديدة ونحفظ فيها كل تفاصيل العملية
-        Transaction transaction = new Transaction(
-                transactionId,
-                account.getAccountId(),
-                transactionType,
-                amount,
-                account.getBalance(),
-                dateTime
-        );
+        Transaction transaction = new Transaction(transactionId, account.getAccountId(),
+                transactionType, amount, account.getBalance(), dateTime);
         // نضيف العملية الجديدة إلى قائمة العمليات
         transactions.add(transaction);
         // نحفظ العملية البنكية داخل ملف
         FileHandlingUtility.saveTransaction(transaction);
 
+    }
+    // نسجل عملية تحويل ونخزن رقم الحساب الثاني المرتبط فيها
+    public void recordTransferTransaction(Account account, String transactionType,
+            double amount, String relatedAccountId) {
+
+        // نسوي رقم جديد للعملية
+        String transactionId = "T" + (transactions.size() + 1);
+
+        // نجيب التاريخ والوقت الحالي
+        String dateTime = LocalDateTime.now().toString();
+
+        // ننشئ عملية جديدة
+        Transaction transaction = new Transaction(transactionId, account.getAccountId(),
+                transactionType, amount, account.getBalance(), dateTime);
+
+        // نخزن رقم الحساب الثاني المرتبط بالتحويل
+        transaction.setRelatedAccountId(relatedAccountId);
+
+        // نضيف العملية إلى قائمة العمليات
+        transactions.add(transaction);
+
+        // نحفظ العملية داخل الملف
+        FileHandlingUtility.saveTransaction(transaction);
     }
     // ترجع كل العمليات البنكية الموجودة في القائمة
     public ArrayList<Transaction> getAllTransactions() {
@@ -59,9 +77,41 @@ public class TransactionService {
             }
 
         }
-
         return accountTransactions;
 
+    }
+    // نرجع عمليات حساب معين بين تاريخين محددين
+    public ArrayList<Transaction> filterTransactionsByDate(String accountId,
+            LocalDateTime startDate, LocalDateTime endDate) {
+
+        // نسوي قائمة جديدة للعمليات اللي تطابق التاريخ المطلوب
+        ArrayList<Transaction> filteredTransactions = new ArrayList<>();
+
+        // نمر على كل العمليات الموجودة في النظام
+        for (Transaction transaction : transactions) {
+            // نتأكد إن العملية تخص الحساب المطلوب
+            if (transaction.getAccountId().equals(accountId)) {
+                // نحول التاريخ المحفوظ كنص إلى LocalDateTime
+                LocalDateTime transactionDate = LocalDateTime.parse(
+                                transaction.getDateTime());
+
+                // نتأكد إن العملية مو قبل تاريخ البداية
+                boolean afterStart = !transactionDate.isBefore(startDate);
+
+                // نتأكد إن العملية مو بعد تاريخ النهاية
+                boolean beforeEnd = !transactionDate.isAfter(endDate);
+
+                // إذا العملية داخل الفترة المطلوبة
+                if (afterStart && beforeEnd) {
+
+                    // نضيف العملية إلى النتائج
+                    filteredTransactions.add(transaction);
+                }
+            }
+        }
+
+        // نرجع العمليات اللي تطابق الفلتر
+        return filteredTransactions;
     }
 
 }

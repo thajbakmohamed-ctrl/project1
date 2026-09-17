@@ -6,7 +6,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 // نستخدم Base64 عشان نحول نتيجة الـ Hash من bytes إلى نص نقدر نخزنه
 import java.util.Base64;
-
 public class PasswordHashingUtility {
     // ميثود تحول كلمة المرور العادية إلى Hash
     public static String hashPassword(String password) {

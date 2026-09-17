@@ -22,7 +22,7 @@ public class BankSystem {
         customerService = new CustomerService();
       // نسوي خدمة العمليات البنكية عشان نسجل كل ال Transactions
         transactionService = new TransactionService();
-    // نسوي خدمة الحسابات ونعطيها نفس TransactionService
+       // نسوي خدمة الحسابات ونعطيها نفس TransactionService
         // عشان أي Deposit أو Withdraw أو Transfer ينحفظ في نفس قائمة العمليات
         accountService = new AccountService(transactionService);
       // نسوي خدمة تسجيل الدخول عشان نتحقق من المستخدمين وكلمات المرور

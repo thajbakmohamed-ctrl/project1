@@ -1,627 +1,905 @@
 package BankUtilities;
-
-// نستخدم RandomAccessFile عشان نقرا ونكتب البيانات داخل الملفات
 import java.io.RandomAccessFile;
-// نستخدم IOException عشان نتعامل مع أخطاء الملفات
+// نستخدم RandomAccessFile عشان نقرا ونكتب البيانات داخل الملفات
 import java.io.IOException;
-// نستخدم Customer عشان نحفظ ونقرا بيانات العميل
+// نستخدم IOException عشان نتعامل مع أخطاء الملفات
 import BankModels.Customer;
-// نستخدم Account عشان نحفظ ونقرا بيانات الحساب
+// نستخدم Customer عشان نحفظ ونقرا بيانات العميل
 import BankModels.Account;
-// نستخدم Transaction عشان نحفظ ونقرا العمليات البنكية
+// نستخدم Account عشان نحفظ ونقرا بيانات الحساب
 import BankModels.Transaction;
-// نستخدم ArrayList عشان نخزن مجموعة من العمليات
-import java.util.ArrayList;
-// نستخدم Banker عشان نحفظ ونقرا بيانات موظف البنك
+// نستخدم Transaction عشان نحفظ ونقرا العمليات البنكية
 import BankModels.Banker;
-// نستخدم DebitCard عشان نحفظ ونقرا بيانات البطاقة
+// نستخدم Banker عشان نحفظ ونقرا بيانات موظف البنك
 import BankModels.DebitCard;
+// نستخدم DebitCard عشان نحفظ ونقرا بيانات البطاقة
+import java.util.ArrayList;
+// نستخدم ArrayList عشان نخزن مجموعة من البيانات
 
 public class FileHandlingUtility {
-    // نحفظ بيانات العميل داخل ملف
     public static void saveCustomer(Customer customer) {
-        // نسوي اسم الملف حسب اسم العميل ورقم العميل
+        // نحفظ بيانات العميل داخل ملف نصي واضح
+
         String fileName = "Customer-" + customer.getName()
                 + "-" + customer.getCustomerId() + ".txt";
+        // نسوي اسم الملف باستخدام اسم العميل ورقم العميل
+
+        try {
+            // نبدأ محاولة حفظ الملف
+
+            RandomAccessFile file = new RandomAccessFile(fileName, "rw");
+            // نفتح ملف العميل للقراءة والكتابة
+
+            file.setLength(0);
+            // نمسح البيانات القديمة قبل ما نكتب البيانات الجديدة
+
+            file.writeBytes("Customer ID: " + customer.getCustomerId() + "\n");
+            // نحفظ رقم العميل
+
+            file.writeBytes("User ID: " + customer.getUserId() + "\n");
+            // نحفظ رقم المستخدم
+
+            file.writeBytes("Name: " + customer.getName() + "\n");
+            // نحفظ اسم العميل
+
+            file.writeBytes("Email: " + customer.getEmail() + "\n");
+            // نحفظ إيميل العميل
+
+            file.writeBytes("Phone: " + customer.getPhone() + "\n");
+            // نحفظ رقم تلفون العميل
+
+            file.writeBytes("Password Hash: " + customer.getPasswordHash() + "\n");
+            // نحفظ كلمة المرور المشفرة
+
+            file.writeBytes("Must Change Password: "
+                    + customer.isMustChangePassword() + "\n");
+            // نحفظ إذا العميل لازم يغير كلمة المرور المؤقتة
+
+            file.close();
+            // نقفل الملف بعد ما نخلص
+
+            saveCustomerFileName(fileName);
+            // نحفظ اسم ملف العميل عشان نقدر نحمله مرة ثانية
+
+        } catch (IOException e) {
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
+
+            System.out.println("Error saving customer file.");
+            // نطبع رسالة خطأ
+        }
+    }
+
+    // نحفظ بيانات العميل مع كل الحسابات التابعة له
+    public static void saveCustomerWithAccounts(Customer customer,
+            ArrayList<Account> accounts) {
+        // نسوي اسم ملف العميل باستخدام اسمه ورقمه
+        String fileName = "Customer-" + customer.getName()
+                + "-" + customer.getCustomerId() + ".txt";
+
         try {
             // نفتح ملف العميل للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "rw");
-            // نكتب رقم العميل داخل الملف
-            file.writeUTF(customer.getCustomerId());
-            // نكتب اسم العميل داخل الملف
-            file.writeUTF(customer.getName());
-            // نكتب رقم المستخدم داخل الملف
-            file.writeUTF(customer.getUserId());
-            // نكتب إيميل العميل داخل الملف
-            file.writeUTF(customer.getEmail());
-            // نكتب رقم تلفون العميل داخل الملف
-            file.writeUTF(customer.getPhone());
-            // نكتب كلمة المرور المشفرة داخل الملف
-            file.writeUTF(customer.getPasswordHash());
-            // نحفظ إذا العميل لازم يغير كلمة المرور المؤقتة
-            file.writeBoolean(customer.isMustChangePassword());
-            // نقفل ملف العميل بعد ما نخلص
-            file.close();
-            // نحفظ اسم ملف العميل داخل CustomerFiles عشان نقراه تلقائيًا بعدين
-            saveCustomerFileName(fileName);
+            RandomAccessFile file = new RandomAccessFile(fileName, "rw");
+            // نمسح المحتوى القديم عشان نكتب أحدث البيانات
+            file.setLength(0);
+            // نحفظ رقم العميل
+            file.writeBytes("Customer ID: " + customer.getCustomerId() + "\n");
+            // نحفظ رقم المستخدم
+            file.writeBytes("User ID: " + customer.getUserId() + "\n");
+            // نحفظ اسم العميل
+            file.writeBytes("Name: " + customer.getName() + "\n");
+            // نحفظ إيميل العميل
+            file.writeBytes("Email: " + customer.getEmail() + "\n");
+            // نحفظ رقم تلفون العميل
+            file.writeBytes("Phone: " + customer.getPhone() + "\n");
+            // نحفظ كلمة المرور المشفرة
+            file.writeBytes("Password Hash: " + customer.getPasswordHash() + "\n");
+            // نحفظ إذا العميل لازم يغير كلمة المرور
+            file.writeBytes("Must Change Password: " + customer.isMustChangePassword()
+                    + "\n");
 
+            // نضيف عنوان قبل بيانات الحسابات
+            file.writeBytes("\n ACCOUNTS \n");
+            // نمر على كل الحسابات الموجودة في النظام
+            for (Account account : accounts) {
+                // نتأكد إن الحساب تابع لهذا العميل فقط
+                if (account.getCustomerId().equals(customer.getCustomerId())) {
+
+                    // نحفظ رقم الحساب
+                    file.writeBytes("\nAccount ID: " + account.getAccountId() + "\n");
+
+                    // نحفظ نوع الحساب
+                    file.writeBytes("Account Type: " + account.getAccountType() + "\n");
+
+                    // نحفظ الرصيد الحالي
+                    file.writeBytes("Balance: " + account.getBalance() + "\n");
+
+                    // نحفظ إذا الحساب فعال أو لا
+                    file.writeBytes("Active: " + account.isActive() + "\n");
+
+                    // نحفظ عدد مرات الـ Overdraft
+                    file.writeBytes("Overdraft Count: " + account.getOverdraftCount() + "\n");
+                }
+            }
+
+            // نقفل الملف بعد ما نخلص
+            file.close();
+            // نحفظ اسم ملف العميل في CustomerFiles
+            saveCustomerFileName(fileName);
         } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ أثناء حفظ العميل
-            System.out.println("Error saving customer file.");
+            // نطبع رسالة إذا صار خطأ أثناء الحفظ
+            System.out.println("Error saving customer with accounts.");
         }
     }
 
-    // نحفظ بيانات موظف البنك داخل ملف
+    public static Customer readCustomer(String fileName) {
+        // نقرا بيانات العميل من الملف النصي
+
+        try {
+            // نبدأ محاولة قراءة الملف
+            RandomAccessFile file = new RandomAccessFile(fileName, "r");
+            // نفتح ملف العميل للقراءة فقط
+            String customerId = file.readLine().replace("Customer ID: ", "");
+            // نقرا رقم العميل
+            String userId = file.readLine().replace("User ID: ", "");
+            // نقرا رقم المستخدم
+            String name = file.readLine().replace("Name: ", "");
+            // نقرا اسم العميل
+            String email = file.readLine().replace("Email: ", "");
+            // نقرا إيميل العميل
+            String phone = file.readLine().replace("Phone: ", "");
+            // نقرا رقم تلفون العميل
+            String passwordHash = file.readLine().replace("Password Hash: ", "");
+            // نقرا كلمة المرور المشفرة
+            boolean mustChangePassword = Boolean.parseBoolean(
+                    file.readLine().replace("Must Change Password: ", "")
+            );
+            // نقرا حالة تغيير كلمة المرور ونحولها إلى boolean
+
+            Customer customer = new Customer(customerId, userId, name, email, phone,
+                    passwordHash);
+            // نسوي Customer باستخدام البيانات اللي قريناها
+            customer.setMustChangePassword(mustChangePassword);
+            // نرجع حالة تغيير كلمة المرور مثل ما كانت محفوظة
+            file.close();
+            // نقفل الملف بعد ما نخلص
+            return customer;
+            // نرجع العميل للنظام
+        } catch (IOException e) {
+            // إذا صار خطأ أثناء القراءة ندخل هنا
+            System.out.println("Error reading customer file.");
+            // نطبع رسالة خطأ
+        }
+
+        return null;
+        // إذا ما قدرنا نقرا العميل نرجع null
+    }
+    public static void saveCustomerFileName(String fileName) {
+        // نحفظ اسم ملف العميل داخل قائمة ملفات العملاء
+        try {
+            // نبدأ محاولة حفظ اسم الملف
+            RandomAccessFile file = new RandomAccessFile("" +
+                    "CustomerFiles.txt", "rw");
+            // نفتح ملف أسماء العملاء
+            boolean fileNameExists = false;
+            // نفترض إن اسم الملف مو موجود
+            while (file.getFilePointer() < file.length()) {
+                // نمر على كل أسماء الملفات المحفوظة
+                String savedFileName = file.readUTF();
+                // نقرا اسم ملف محفوظ
+                if (savedFileName.equals(fileName)) {
+                    // نتأكد إذا الاسم موجود من قبل
+                    fileNameExists = true;
+                    // نحدد إن الاسم موجود
+                    break;
+                }
+            }
+            if (!fileNameExists) {
+                // إذا الاسم مو موجود من قبل
+                file.seek(file.length());
+                // نروح إلى نهاية الملف
+                file.writeUTF(fileName);
+                // نحفظ اسم الملف
+            }
+            file.close();
+            // نقفل الملف بعد ما نخلص
+        } catch (IOException e) {
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
+            System.out.println("Error saving customer file name.");
+            // نطبع رسالة خطأ
+        }
+    }
+
+    public static ArrayList<String> readCustomerFileNames() {
+        // نقرا أسماء ملفات العملاء المحفوظة
+        ArrayList<String> customerFileNames = new ArrayList<>();
+        // نسوي قائمة نخزن فيها أسماء الملفات
+        try {
+            // نبدأ محاولة قراءة الملف
+            RandomAccessFile file = new RandomAccessFile("CustomerFiles.txt", "r");
+            // نفتح ملف أسماء العملاء للقراءة
+            while (file.getFilePointer() < file.length()) {
+                // نستمر في القراءة لين نهاية الملف
+                String fileName = file.readUTF();
+                // نقرا اسم ملف العميل
+                customerFileNames.add(fileName);
+                // نضيف اسم الملف إلى القائمة
+            }
+
+            file.close();
+            // نقفل الملف بعد ما نخلص
+        } catch (IOException e) {
+            // إذا الملف مو موجود أو صار خطأ ندخل هنا
+            System.out.println("No saved customer files found.");
+            // نطبع رسالة توضيحية
+        }
+
+        return customerFileNames;
+        // نرجع قائمة أسماء ملفات العملاء
+    }
+
     public static void saveBanker(Banker banker) {
-        // نسوي اسم الملف حسب اسم موظف البنك ورقمه
+        // نحفظ بيانات موظف البنك داخل ملف نصي واضح
         String fileName = "Banker-" + banker.getName()
                 + "-" + banker.getBankerId() + ".txt";
+        // نسوي اسم الملف باستخدام اسم الموظف ورقمه
 
         try {
-
+            // نبدأ محاولة حفظ الملف
+            RandomAccessFile file = new RandomAccessFile(fileName, "rw");
             // نفتح ملف موظف البنك للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "rw");
-
-            // نكتب رقم موظف البنك
-            file.writeUTF(banker.getBankerId());
-            // نكتب رقم المستخدم
-            file.writeUTF(banker.getUserId());
-            // نكتب اسم موظف البنك
-            file.writeUTF(banker.getName());
-            // نكتب إيميل موظف البنك
-            file.writeUTF(banker.getEmail());
-            // نكتب رقم تلفون موظف البنك
-            file.writeUTF(banker.getPhone());
-            // نكتب كلمة المرور المشفرة
-            file.writeUTF(banker.getPasswordHash());
-            // نقفل الملف بعد ما نخلص
+            file.setLength(0);
+            // نمسح البيانات القديمة قبل ما نكتب البيانات الجديدة
+            file.writeBytes("Banker ID: " + banker.getBankerId() + "\n");
+            // نحفظ رقم موظف البنك
+            file.writeBytes("User ID: " + banker.getUserId() + "\n");
+            // نحفظ رقم المستخدم
+            file.writeBytes("Name: " + banker.getName() + "\n");
+            // نحفظ اسم موظف البنك
+            file.writeBytes("Email: " + banker.getEmail() + "\n");
+            // نحفظ إيميل موظف البنك
+            file.writeBytes("Phone: " + banker.getPhone() + "\n");
+            // نحفظ رقم تلفون موظف البنك
+            file.writeBytes("Password Hash: " + banker.getPasswordHash() + "\n");
+            // نحفظ كلمة المرور المشفرة
             file.close();
-
+            // نقفل الملف بعد ما نخلص
         } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ أثناء حفظ موظف البنك
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
             System.out.println("Error saving banker file.");
+            // نطبع رسالة خطأ
         }
     }
 
-    // نقرا بيانات موظف البنك من الملف
     public static Banker readBanker(String fileName) {
+        // نقرا بيانات موظف البنك من الملف النصي
 
         try {
+            // نبدأ محاولة قراءة الملف
+            RandomAccessFile file = new RandomAccessFile(fileName, "r");
             // نفتح ملف موظف البنك للقراءة فقط
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "r");
+            String bankerId = file.readLine().replace("Banker ID: ", "");
             // نقرا رقم موظف البنك
-            String bankerId = file.readUTF();
+            String userId = file.readLine().replace("User ID: ", "");
             // نقرا رقم المستخدم
-            String userId = file.readUTF();
+            String name = file.readLine().replace("Name: ", "");
             // نقرا اسم موظف البنك
-            String name = file.readUTF();
+            String email = file.readLine().replace("Email: ", "");
             // نقرا إيميل موظف البنك
-            String email = file.readUTF();
+            String phone = file.readLine().replace("Phone: ", "");
             // نقرا رقم تلفون موظف البنك
-            String phone = file.readUTF();
+            String passwordHash = file.readLine().replace("Password Hash: ", "");
             // نقرا كلمة المرور المشفرة
-            String passwordHash = file.readUTF();
-
+            Banker banker = new Banker(bankerId, userId, name, email,
+                    phone, passwordHash);
             // نسوي Banker باستخدام البيانات اللي قريناها
-            Banker banker = new Banker(
-                    bankerId, userId, name, email, phone, passwordHash);
 
-            // نقفل الملف بعد ما نخلص القراءة
             file.close();
-            // نرجع موظف البنك
+            // نقفل الملف بعد ما نخلص
             return banker;
+            // نرجع موظف البنك للنظام
         } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ أثناء قراءة ملف موظف البنك
+            // إذا صار خطأ أثناء القراءة ندخل هنا
             System.out.println("Error reading banker file.");
+            // نطبع رسالة خطأ
         }
+
+        return null;
         // إذا ما قدرنا نقرا موظف البنك نرجع null
-        return null;
     }
 
-    // نحفظ اسم ملف العميل عشان نقدر نقراه تلقائيًا بعدين
-    public static void saveCustomerFileName(String fileName) {
-
-        try {
-            // نفتح ملف CustomerFiles للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile("CustomerFiles.txt", "rw");
-            // نفترض في البداية إن اسم الملف مو موجود
-            boolean fileNameExists = false;
-            // نمر على كل أسماء الملفات المحفوظة
-            while (file.getFilePointer() < file.length()) {
-                // نقرا اسم ملف محفوظ
-                String savedFileName = file.readUTF();
-                // نتأكد إذا اسم الملف موجود من قبل
-                if (savedFileName.equals(fileName)) {
-                    // نغير القيمة إلى true لأن الملف موجود
-                    fileNameExists = true;
-                    // نوقف البحث لأننا لقينا الملف
-                    break;
-                }
-            }
-
-            // إذا اسم الملف مو موجود من قبل
-            if (!fileNameExists) {
-                // نروح إلى نهاية الملف
-                file.seek(file.length());
-                // نضيف اسم ملف العميل الجديد
-                file.writeUTF(fileName);
-            }
-            // نقفل الملف بعد ما نخلص
-            file.close();
-
-        } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ
-            System.out.println("Error saving customer file name.");
-        }
-    }
-
-    // نقرا أسماء ملفات العملاء المحفوظة
-    public static ArrayList<String> readCustomerFileNames() {
-        // نسوي قائمة نخزن فيها أسماء ملفات العملاء
-        ArrayList<String> customerFileNames = new ArrayList<>();
-
-        try {
-            // نفتح ملف أسماء العملاء للقراءة فقط
-            RandomAccessFile file =
-                    new RandomAccessFile("CustomerFiles.txt", "r");
-            // نستمر في القراءة لين نوصل لنهاية الملف
-            while (file.getFilePointer() < file.length()) {
-                // نقرا اسم ملف العميل
-                String fileName = file.readUTF();
-                // نضيف اسم الملف إلى القائمة
-                customerFileNames.add(fileName);
-            }
-
-            // نقفل الملف بعد ما نخلص
-            file.close();
-        } catch (IOException e) {
-            // إذا الملف مو موجود للحين نرجع قائمة فاضية
-            System.out.println("No saved customer files found.");
-        }
-        // نرجع قائمة أسماء ملفات العملاء
-        return customerFileNames;
-    }
-
-    // نحفظ بيانات الحساب داخل ملف
     public static void saveAccount(Account account) {
-        // نسوي اسم الملف حسب رقم الحساب
+        // نحفظ بيانات الحساب داخل ملف نصي واضح
         String fileName = "Account-" + account.getAccountId() + ".txt";
-
+        // نسوي اسم الملف باستخدام رقم الحساب
         try {
+            // نبدأ محاولة حفظ الملف
+            RandomAccessFile file = new RandomAccessFile(fileName, "rw");
             // نفتح ملف الحساب للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "rw");
-            // نكتب رقم الحساب داخل الملف
-            file.writeUTF(account.getAccountId());
-            // نكتب رقم العميل صاحب الحساب
-            file.writeUTF(account.getCustomerId());
-            // نكتب نوع الحساب
-            file.writeUTF(account.getAccountType());
-            // نكتب رصيد الحساب
-            file.writeDouble(account.getBalance());
-            // نكتب إذا الحساب فعال أو لا
-            file.writeBoolean(account.isActive());
-            // نكتب عدد مرات الـ Overdraft
-            file.writeInt(account.getOverdraftCount());
-            // نقفل ملف الحساب بعد ما نخلص
+            file.setLength(0);
+            // نمسح البيانات القديمة قبل ما نكتب البيانات الجديدة
+            file.writeBytes("Account ID: " + account.getAccountId() + "\n");
+            // نحفظ رقم الحساب
+            file.writeBytes("Customer ID: " + account.getCustomerId() + "\n");
+            // نحفظ رقم العميل صاحب الحساب
+            file.writeBytes("Account Type: " + account.getAccountType() + "\n");
+            // نحفظ نوع الحساب
+            file.writeBytes("Balance: " + account.getBalance() + "\n");
+            // نحفظ الرصيد الحالي
+            file.writeBytes("Active: " + account.isActive() + "\n");
+            // نحفظ إذا الحساب فعال أو لا
+            file.writeBytes("Overdraft Count: " + account.getOverdraftCount() + "\n");
+            // نحفظ عدد مرات الـ Overdraft
             file.close();
-            // نحفظ اسم ملف الحساب عشان نقدر نقراه تلقائيًا بعدين
+            // نقفل الملف بعد ما نخلص
             saveAccountFileName(fileName);
+            // نحفظ اسم ملف الحساب عشان نقدر نحمله مرة ثانية
 
         } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ أثناء حفظ الحساب
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
             System.out.println("Error saving account file.");
+            // نطبع رسالة خطأ
         }
     }
 
-    // نحفظ اسم ملف الحساب عشان نقدر نقراه تلقائيًا بعدين
-    public static void saveAccountFileName(String fileName) {
-
+    public static Account readAccount(String fileName) {
+        // نقرا بيانات الحساب من الملف النصي
         try {
-            // نفتح ملف أسماء الحسابات للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile("AccountFiles.txt", "rw");
-            // نفترض في البداية إن اسم الملف مو موجود
+            // نبدأ محاولة قراءة الملف
+            RandomAccessFile file = new RandomAccessFile(fileName, "r");
+            // نفتح ملف الحساب للقراءة فقط
+            String accountId = file.readLine().replace("Account ID: ", "");
+            // نقرا رقم الحساب
+            String customerId = file.readLine().replace("Customer ID: ", "");
+            // نقرا رقم العميل صاحب الحساب
+            String accountType = file.readLine().replace("Account Type: ", "");
+            // نقرا نوع الحساب
+            double balance = Double.parseDouble(
+                    file.readLine().replace("Balance: ", "")
+            );
+            // نقرا الرصيد ونحوله إلى double
+            boolean isActive = Boolean.parseBoolean(
+                    file.readLine().replace("Active: ", "")
+            );
+            // نقرا حالة الحساب ونحولها إلى boolean
+            int overdraftCount = Integer.parseInt(
+                    file.readLine().replace("Overdraft Count: ", "")
+            );
+            // نقرا عدد مرات الـ Overdraft ونحوله إلى int
+            Account account = new Account(accountId, customerId, accountType, balance);
+            // نسوي Account باستخدام البيانات اللي قريناها
+            account.setActive(isActive);
+            // نرجع حالة الحساب مثل ما كانت محفوظة
+            account.setOverdraftCount(overdraftCount);
+            // نرجع عدد مرات الـ Overdraft
+            file.close();
+            // نقفل الملف بعد ما نخلص
+            return account;
+            // نرجع الحساب للنظام
+        } catch (IOException e) {
+            // إذا صار خطأ أثناء القراءة ندخل هنا
+            System.out.println("Error reading account file.");
+            // نطبع رسالة خطأ
+        }
+        return null;
+        // إذا ما قدرنا نقرا الحساب نرجع null
+    }
+
+    public static void saveAccountFileName(String fileName) {
+        // نحفظ اسم ملف الحساب داخل قائمة ملفات الحسابات
+        try {
+            // نبدأ محاولة حفظ اسم الملف
+            RandomAccessFile file = new RandomAccessFile("AccountFiles.txt", "rw");
+            // نفتح ملف أسماء الحسابات
             boolean fileNameExists = false;
-            // نمر على كل أسماء ملفات الحسابات المحفوظة
+            // نفترض إن اسم الملف مو موجود
             while (file.getFilePointer() < file.length()) {
-                // نقرا اسم ملف محفوظ
+                // نمر على كل أسماء الملفات المحفوظة
                 String savedFileName = file.readUTF();
-                // نتأكد إذا اسم الملف موجود من قبل
+                // نقرا اسم ملف محفوظ
                 if (savedFileName.equals(fileName)) {
-                    // نحدد إن الملف موجود
+                    // نتأكد إذا الاسم موجود من قبل
                     fileNameExists = true;
-                    // نوقف البحث
+                    // نحدد إن الاسم موجود
                     break;
                 }
             }
 
-            // إذا اسم الملف مو موجود من قبل
             if (!fileNameExists) {
-                // نروح إلى نهاية الملف
+                // إذا الاسم مو موجود من قبل
                 file.seek(file.length());
-                // نحفظ اسم ملف الحساب
+                // نروح إلى نهاية الملف
                 file.writeUTF(fileName);
+                // نحفظ اسم الملف
             }
 
-            // نقفل الملف بعد ما نخلص
             file.close();
+            // نقفل الملف بعد ما نخلص
         } catch (IOException e) {
-            //نطبع رسالة إذا صار خطأ
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
             System.out.println("Error saving account file name.");
+            // نطبع رسالة خطأ
         }
     }
 
-
-    // نقرا أسماء ملفات الحسابات المحفوظة
     public static ArrayList<String> readAccountFileNames() {
-        // نسوي قائمة نخزن فيها أسماء ملفات الحسابات
+        // نقرا أسماء ملفات الحسابات المحفوظة
         ArrayList<String> accountFileNames = new ArrayList<>();
+        // نسوي قائمة نخزن فيها أسماء ملفات الحسابات
 
         try {
-            // نفتح ملف أسماء الحسابات للقراءة فقط
-            RandomAccessFile file =
-                    new RandomAccessFile("AccountFiles.txt", "r");
-            // نستمر في القراءة لين نوصل لنهاية الملف
+            // نبدأ محاولة قراءة الملف
+            RandomAccessFile file = new RandomAccessFile("AccountFiles.txt", "r");
+            // نفتح ملف أسماء الحسابات للقراءة
             while (file.getFilePointer() < file.length()) {
-                // نقرا اسم ملف الحساب
+                // نستمر في القراءة لين نهاية الملف
                 String fileName = file.readUTF();
-                // نضيف اسم الملف إلى القائمة
+                // نقرا اسم ملف الحساب
                 accountFileNames.add(fileName);
+                // نضيف اسم الملف إلى القائمة
             }
 
-            // نقفل الملف بعد ما نخلص
             file.close();
+            // نقفل الملف بعد ما نخلص
         } catch (IOException e) {
-            // إذا الملف مو موجود للحين نرجع قائمة فاضية
+            // إذا الملف مو موجود أو صار خطأ ندخل هنا
             System.out.println("No saved account files found.");
+            // نطبع رسالة توضيحية
         }
-        // نرجع قائمة أسماء ملفات الحسابات
+
         return accountFileNames;
+        // نرجع قائمة أسماء ملفات الحسابات
     }
 
-
-    // نقرا بيانات العميل من الملف
-    public static Customer readCustomer(String fileName) {
-
-        try {
-            // نفتح ملف العميل للقراءة فقط
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "r");
-            // نقرا رقم العميل
-            String customerId = file.readUTF();
-            // نقرا اسم العميل
-            String name = file.readUTF();
-            // نقرا رقم المستخدم
-            String userId = file.readUTF();
-            // نقرا إيميل العميل
-            String email = file.readUTF();
-            // نقرا رقم تلفون العميل
-            String phone = file.readUTF();
-            // نقرا كلمة المرور المشفرة
-            String passwordHash = file.readUTF();
-            // بشكل افتراضي نعتبر العميل لازم يغير كلمة المرور
-            boolean mustChangePassword = true;
-
-            // نتأكد إذا الملف يحتوي على حالة تغيير كلمة المرور
-            if (file.getFilePointer() < file.length()) {
-                // نقرا حالة تغيير كلمة المرور
-                mustChangePassword = file.readBoolean();
-            }
-
-            // نسوي Customer باستخدام البيانات اللي قريناها
-            Customer customer = new Customer(
-                    customerId, userId, name, email, phone, passwordHash);
-
-            // نرجع حالة تغيير كلمة المرور المحفوظة
-            customer.setMustChangePassword(mustChangePassword);
-            // نقفل الملف بعد ما نخلص القراءة
-            file.close();
-            // نرجع العميل
-            return customer;
-        } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ أثناء قراءة العميل
-            System.out.println("Error reading customer file.");
-        }
-
-        // إذا ما قدرنا نقرا العميل نرجع null
-        return null;
-    }
-
-
-    // نقرا بيانات الحساب من الملف
-    public static Account readAccount(String fileName) {
-        try {
-            // نفتح ملف الحساب للقراءة فقط
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "r");
-            // نقرا رقم الحساب
-            String accountId = file.readUTF();
-            // نقرا رقم العميل صاحب الحساب
-            String customerId = file.readUTF();
-            // نقرا نوع الحساب
-            String accountType = file.readUTF();
-            // نقرا رصيد الحساب
-            double balance = file.readDouble();
-            // نقرا إذا الحساب فعال أو لا
-            boolean isActive = file.readBoolean();
-            // نقرا عدد مرات الـ Overdraft
-            int overdraftCount = file.readInt();
-            // نسوي Account باستخدام البيانات اللي قريناها
-            Account account = new Account(accountId, customerId, accountType, balance);
-
-            // نرجع حالة الحساب مثل ما كانت محفوظة
-            account.setActive(isActive);
-            // نرجع عدد مرات الـ Overdraft
-            account.setOverdraftCount(overdraftCount);
-            // نقفل الملف بعد ما نخلص
-            file.close();
-            // نرجع الحساب
-            return account;
-
-        } catch (IOException e) {
-
-            // نطبع رسالة إذا صار خطأ أثناء قراءة الحساب
-            System.out.println("Error reading account file.");
-        }
-        // إذا ما قدرنا نقرا الحساب نرجع null
-        return null;
-    }
-
-    // نحفظ بيانات بطاقة الخصم داخل ملف
+    // نحفظ بيانات بطاقة الخصم داخل ملف نصي
     public static void saveDebitCard(DebitCard debitCard) {
-        // نسوي اسم الملف حسب رقم البطاقة
+        // نسوي اسم الملف باستخدام Card ID
         String fileName = "DebitCard-" + debitCard.getCardId() + ".txt";
 
         try {
+            // نفتح ملف البطاقة للكتابة
+            RandomAccessFile file = new RandomAccessFile(fileName, "rw");
+            // نمسح البيانات القديمة قبل ما نحفظ البيانات الجديدة
+            file.setLength(0);
+            // نحفظ رقم تعريف البطاقة
+            file.writeBytes("Card ID: " + debitCard.getCardId() + "\n");
 
-            // نفتح ملف البطاقة للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "rw");
-            // نكتب رقم تعريف البطاقة
-            file.writeUTF(debitCard.getCardId());
-            // نكتب رقم الحساب المرتبط بالبطاقة
-            file.writeUTF(debitCard.getAccountId());
-            // نكتب رقم البطاقة
-            file.writeUTF(debitCard.getCardNumber());
-            // نكتب نوع البطاقة
-            file.writeUTF(debitCard.getCardType());
-            // نكتب تاريخ انتهاء البطاقة
-            file.writeUTF(debitCard.getExpiryDate());
+            // نحفظ رقم الحساب المرتبط بالبطاقة
+            file.writeBytes("Account ID: " + debitCard.getAccountId() + "\n");
+
+            // نحفظ رقم البطاقة
+            file.writeBytes("Card Number: " + debitCard.getCardNumber() + "\n");
+
+            // نحفظ نوع البطاقة
+            file.writeBytes("Card Type: " + debitCard.getCardType() + "\n");
+
+            // نحفظ تاريخ انتهاء البطاقة
+            file.writeBytes("Expiry Date: " + debitCard.getExpiryDate() + "\n");
+
             // نحفظ إذا البطاقة فعالة أو لا
-            file.writeBoolean(debitCard.isActive());
-            // نقفل ملف البطاقة بعد ما نخلص
+            file.writeBytes("Active: " + debitCard.isActive() + "\n");
+
+            // نحفظ إذا العميل عنده طلب Upgrade معلق
+            file.writeBytes("Upgrade Requested: " + debitCard.isUpgradeRequested() + "\n");
+
+            // نحفظ نوع البطاقة اللي العميل طلبها
+            file.writeBytes("Requested Card Type: " + debitCard.getRequestedCardType() + "\n");
+            // نحفظ مجموع السحب المستخدم اليوم
+            file.writeBytes("Daily Withdraw Used: " + debitCard.getDailyWithdrawUsed() + "\n");
+
+             // نحفظ مجموع التحويل العادي المستخدم اليوم
+            file.writeBytes("Daily Transfer Used: " + debitCard.getDailyTransferUsed() + "\n");
+
+            // نحفظ مجموع التحويل بين حسابات نفس العميل اليوم
+            file.writeBytes("Daily Own Transfer Used: " + debitCard.getDailyOwnTransferUsed() + "\n");
+
+            // نحفظ مجموع الإيداع المستخدم اليوم
+            file.writeBytes("Daily Deposit Used: " + debitCard.getDailyDepositUsed() + "\n");
+
+            // نحفظ تاريخ آخر استخدام للحدود اليومية
+            file.writeBytes("Daily Usage Date: " + debitCard.getDailyUsageDate() + "\n");
+
+            // نقفل الملف بعد ما نخلص
             file.close();
-            // نحفظ اسم ملف البطاقة عشان نقدر نقراه تلقائيًا بعدين
+            // نحفظ اسم ملف البطاقة في قائمة ملفات البطاقات
             saveDebitCardFileName(fileName);
-
         } catch (IOException e) {
-
-            // نطبع رسالة إذا صار خطأ أثناء حفظ البطاقة
+            // نطبع رسالة إذا صار خطأ أثناء الحفظ
             System.out.println("Error saving debit card file.");
         }
     }
 
-    // نحفظ اسم ملف بطاقة الخصم عشان نقدر نقراه تلقائيًا بعدين
-    public static void saveDebitCardFileName(String fileName) {
-
-        try {
-            // نفتح ملف أسماء البطاقات للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile("DebitCardFiles.txt", "rw");
-            // نفترض في البداية إن اسم الملف مو موجود
-            boolean fileNameExists = false;
-            // نمر على كل أسماء ملفات البطاقات المحفوظة
-            while (file.getFilePointer() < file.length()) {
-                // نقرا اسم ملف محفوظ
-                String savedFileName = file.readUTF();
-                // نتأكد إذا اسم الملف موجود من قبل
-                if (savedFileName.equals(fileName)) {
-                    // نحدد إن الملف موجود
-                    fileNameExists = true;
-                    // نوقف البحث
-                    break;
-                }
-            }
-
-            // إذا اسم الملف مو موجود من قبل
-            if (!fileNameExists) {
-                // نروح إلى نهاية الملف
-                file.seek(file.length());
-                // نحفظ اسم ملف البطاقة
-                file.writeUTF(fileName);
-            }
-            // نقفل الملف بعد ما نخلص
-            file.close();
-
-        } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ
-            System.out.println("Error saving debit card file name.");
-        }
-    }
-
-
-    // نقرا بيانات بطاقة الخصم من الملف
+    // نقرا بيانات بطاقة الخصم من الملف النصي
     public static DebitCard readDebitCard(String fileName) {
 
         try {
-            // نفتح ملف البطاقة للقراءة فقط
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "r");
-            // نقرا رقم تعريف البطاقة
-            String cardId = file.readUTF();
-            // نقرا رقم الحساب المرتبط بالبطاقة
-            String accountId = file.readUTF();
-            // نقرا رقم البطاقة
-            String cardNumber = file.readUTF();
-            // نقرا نوع البطاقة
-            String cardType = file.readUTF();
-            // نقرا تاريخ انتهاء البطاقة
-            String expiryDate = file.readUTF();
-            // نقرا إذا البطاقة فعالة أو لا
-            boolean isActive = file.readBoolean();
 
-            // نسوي بطاقة باستخدام البيانات اللي قريناها
+            // نفتح ملف البطاقة للقراءة فقط
+            RandomAccessFile file = new RandomAccessFile(fileName, "r");
+
+            // نقرا رقم تعريف البطاقة
+            String cardId = file.readLine().replace("Card ID: ", "");
+
+            // نقرا رقم الحساب المرتبط بالبطاقة
+            String accountId = file.readLine().replace("Account ID: ", "");
+
+            // نقرا رقم البطاقة
+            String cardNumber = file.readLine().replace("Card Number: ", "");
+
+            // نقرا نوع البطاقة
+            String cardType = file.readLine().replace("Card Type: ", "");
+
+            // نقرا تاريخ انتهاء البطاقة
+            String expiryDate = file.readLine().replace("Expiry Date: ", "");
+
+            // نقرا إذا البطاقة فعالة أو لا
+            boolean isActive = Boolean.parseBoolean(
+                            file.readLine().replace("Active: ", ""));
+
+
+            // بالبداية نفترض إن ما في طلب ترقية
+            boolean upgradeRequested = false;
+            // بالبداية نخلي نوع البطاقة المطلوبة فاضي
+            String requestedCardType = "";
+            // بالبداية نفترض إن ما تم استخدام أي حد يومي
+            double dailyWithdrawUsed = 0;
+           // بالبداية نفترض إن ما تم استخدام أي تحويل عادي
+            double dailyTransferUsed = 0;
+            // بالبداية نفترض إن ما تم استخدام تحويل بين حسابات نفس العميل
+            double dailyOwnTransferUsed = 0;
+            // بالبداية نفترض إن ما تم استخدام أي إيداع
+            double dailyDepositUsed = 0;
+            // بالبداية ما عندنا تاريخ استخدام محفوظ
+            String dailyUsageDate = "";
+            // نتأكد إذا الملف يحتوي على بيانات Upgrade الجديدة
+            if (file.getFilePointer() < file.length()) {
+                // نقرا سطر طلب الترقية
+                String upgradeRequestedLine = file.readLine();
+                // نتأكد إن السطر موجود قبل استخدام replace
+                if (upgradeRequestedLine != null) {
+                    // نحول قيمة طلب الترقية إلى boolean
+                    upgradeRequested = Boolean.parseBoolean(upgradeRequestedLine.replace(
+                            "Upgrade Requested: ", ""));
+                }
+            }
+
+
+            // نتأكد إذا الملف يحتوي على نوع البطاقة المطلوبة
+            if (file.getFilePointer() < file.length()) {
+                // نقرا سطر نوع البطاقة المطلوبة
+                String requestedCardTypeLine = file.readLine();
+                // نتأكد إن السطر موجود قبل استخدام replace
+                if (requestedCardTypeLine != null) {
+                    // ناخذ نوع البطاقة المطلوبة من السطر
+                    requestedCardType = requestedCardTypeLine.replace(
+                            "Requested Card Type: ", "");
+                    // نتأكد إذا الملف يحتوي على قيمة السحب اليومية
+                    if (file.getFilePointer() < file.length()) {
+                        // نقرا مجموع السحب المستخدم اليوم
+                        String line = file.readLine();
+                        if (line != null) {dailyWithdrawUsed = Double.parseDouble(
+                                    line.replace("Daily Withdraw Used: ", ""));
+                        }
+                    }
+
+
+                    // نتأكد إذا الملف يحتوي على قيمة التحويل اليومية
+                    if (file.getFilePointer() < file.length()) {
+                        // نقرا مجموع التحويل العادي المستخدم اليوم
+                        String line = file.readLine();
+                        if (line != null) {dailyTransferUsed = Double.parseDouble(
+                                line.replace("Daily Transfer Used: ", ""));
+                        }
+                    }
+
+
+                      // نتأكد إذا الملف يحتوي على تحويلات الحسابات الخاصة بالعميل
+                    if (file.getFilePointer() < file.length()) {
+                        // نقرا مجموع التحويل بين حسابات نفس العميل
+                        String line = file.readLine();
+                        if (line != null) {dailyOwnTransferUsed = Double.parseDouble(
+                                line.replace("Daily Own Transfer Used: ", ""));
+                        }
+                    }
+
+
+                    // نتأكد إذا الملف يحتوي على قيمة الإيداع اليومية
+                    if (file.getFilePointer() < file.length()) {
+                        // نقرا مجموع الإيداع المستخدم اليوم
+                        String line = file.readLine();
+                        if (line != null) {
+                            dailyDepositUsed = Double.parseDouble(
+                                    line.replace("Daily Deposit Used: ", ""));
+                        }
+                    }
+
+
+                        // نتأكد إذا الملف يحتوي على تاريخ الاستخدام
+                    if (file.getFilePointer() < file.length()) {
+                        // نقرا تاريخ آخر استخدام للحدود اليومية
+                        String line = file.readLine();
+                        if (line != null) {
+                            dailyUsageDate =
+                                    line.replace("Daily Usage Date: ", "");
+                        }
+                    }
+                }
+            }
+
+
+            // ننشئ البطاقة باستخدام البيانات اللي قريناها
             DebitCard debitCard = new DebitCard(cardId, accountId, cardNumber, cardType,
                     expiryDate);
-
             // نرجع حالة البطاقة مثل ما كانت محفوظة
             debitCard.setActive(isActive);
+            // نرجع حالة طلب الترقية
+            debitCard.setUpgradeRequested(upgradeRequested);
+            // نرجع نوع البطاقة المطلوبة
+            debitCard.setRequestedCardType(requestedCardType);
+            // نرجع قيمة السحب اليومية المحفوظة
+            debitCard.setDailyWithdrawUsed(dailyWithdrawUsed);
+            // نرجع قيمة التحويل اليومية المحفوظة
+            debitCard.setDailyTransferUsed(dailyTransferUsed);
+           // نرجع قيمة التحويل بين حسابات نفس العميل
+            debitCard.setDailyOwnTransferUsed(dailyOwnTransferUsed);
+            // نرجع قيمة الإيداع اليومية
+            debitCard.setDailyDepositUsed(dailyDepositUsed);
+            // نرجع تاريخ الاستخدام اليومي
+            debitCard.setDailyUsageDate(dailyUsageDate);
             // نقفل الملف بعد ما نخلص
             file.close();
-            // نرجع البطاقة
+            // نرجع البطاقة للنظام
             return debitCard;
 
         } catch (IOException e) {
             // نطبع رسالة إذا صار خطأ أثناء قراءة البطاقة
             System.out.println("Error reading debit card file.");
         }
-
         // إذا ما قدرنا نقرا البطاقة نرجع null
         return null;
     }
 
-    // نحفظ العملية البنكية داخل ملف
-    public static void saveTransaction(Transaction transaction) {
-        // نسوي اسم ملف العمليات حسب رقم الحساب
-        String fileName = "Transactions-" + transaction.getAccountId() + ".txt";
+    public static void saveDebitCardFileName(String fileName) {
+        // نحفظ اسم ملف البطاقة داخل قائمة ملفات البطاقات
 
         try {
-            // نفتح ملف العمليات للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "rw");
-            // نروح لنهاية الملف عشان ما نمسح العمليات القديمة
-            file.seek(file.length());
-            // نكتب رقم العملية
-            file.writeUTF(transaction.getTransactionId());
-            // نكتب رقم الحساب
-            file.writeUTF(transaction.getAccountId());
-            // نكتب نوع العملية
-            file.writeUTF(transaction.getTransactionType());
-            // نكتب مبلغ العملية
-            file.writeDouble(transaction.getAmount());
-            // نكتب الرصيد بعد العملية
-            file.writeDouble(transaction.getBalanceAfter());
-            // نكتب تاريخ ووقت العملية
-            file.writeUTF(transaction.getDateTime());
-            // نقفل الملف بعد ما نخلص
-            file.close();
-            // نحفظ اسم ملف العمليات عشان نقدر نقراه تلقائيًا بعدين
-            saveTransactionFileName(fileName);
-
-        } catch (IOException e) {
-
-            // نطبع رسالة إذا صار خطأ أثناء حفظ العملية
-            System.out.println("Error saving transaction file.");
-        }
-    }
-
-    // نحفظ اسم ملف العمليات عشان نقدر نقراه تلقائيًا بعدين
-    public static void saveTransactionFileName(String fileName) {
-
-        try {
-
-            // نفتح ملف أسماء ملفات العمليات للقراءة والكتابة
-            RandomAccessFile file =
-                    new RandomAccessFile("TransactionFiles.txt", "rw");
-            // نفترض في البداية إن اسم الملف مو موجود
+            // نبدأ محاولة حفظ اسم الملف
+            RandomAccessFile file = new RandomAccessFile("DebitCardFiles.txt", "rw");
+            // نفتح ملف أسماء البطاقات
             boolean fileNameExists = false;
-            // نمر على كل أسماء ملفات العمليات المحفوظة
+            // نفترض إن اسم الملف مو موجود
             while (file.getFilePointer() < file.length()) {
-                // نقرا اسم ملف محفوظ
+                // نمر على كل أسماء الملفات المحفوظة
                 String savedFileName = file.readUTF();
-                // نتأكد إذا اسم الملف موجود من قبل
+                // نقرا اسم ملف محفوظ
                 if (savedFileName.equals(fileName)) {
-                    // نحدد إن اسم الملف موجود
+                    // نتأكد إذا الاسم موجود من قبل
                     fileNameExists = true;
-                    // نوقف البحث
+                    // نحدد إن الاسم موجود
                     break;
                 }
             }
 
-            // إذا اسم الملف مو موجود من قبل
             if (!fileNameExists) {
-                // نروح إلى نهاية الملف
+                // إذا الاسم مو موجود من قبل
                 file.seek(file.length());
-                // نحفظ اسم ملف العمليات
+                // نروح إلى نهاية الملف
                 file.writeUTF(fileName);
+                // نحفظ اسم الملف
             }
-
-            // نقفل الملف بعد ما نخلص
             file.close();
+            // نقفل الملف بعد ما نخلص
         } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ
-            System.out.println("Error saving transaction file name.");
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
+            System.out.println("Error saving debit card file name.");
+            // نطبع رسالة خطأ
         }
     }
+    // نقرا أسماء ملفات البطاقات المحفوظة
+    public static ArrayList<String> readDebitCardFileNames() {
+        // نسوي قائمة نخزن فيها أسماء ملفات البطاقات
+        ArrayList<String> debitCardFileNames =
+                new ArrayList<>();
 
-    // نقرا أسماء ملفات العمليات المحفوظة
-    public static ArrayList<String> readTransactionFileNames() {
-        // نسوي قائمة نخزن فيها أسماء ملفات العمليات
-        ArrayList<String> transactionFileNames = new ArrayList<>();
         try {
-            // نفتح ملف أسماء العمليات للقراءة فقط
+            // نفتح ملف أسماء البطاقات للقراءة
             RandomAccessFile file =
-                    new RandomAccessFile("TransactionFiles.txt", "r");
-            // نستمر في القراءة لين نوصل لنهاية الملف
+                    new RandomAccessFile("DebitCardFiles.txt", "r");
+
+            // نستمر في القراءة لين نهاية الملف
             while (file.getFilePointer() < file.length()) {
-                // نقرا اسم ملف العمليات
+                // نقرا اسم ملف البطاقة
                 String fileName = file.readUTF();
                 // نضيف اسم الملف إلى القائمة
-                transactionFileNames.add(fileName);
+                debitCardFileNames.add(fileName);
             }
-            // نقفل الملف بعد ما نخلص
+
+            // نقفل الملف
             file.close();
 
         } catch (IOException e) {
-            // إذا الملف مو موجود للحين نرجع قائمة فاضية
-            System.out.println("No saved transaction files found.");
+            // إذا ما كان عندنا ملفات بطاقات محفوظة
+            System.out.println("No saved debit card files found.");
         }
 
-        // نرجع قائمة أسماء ملفات العمليات
-        return transactionFileNames;
+        // نرجع أسماء ملفات البطاقات
+        return debitCardFileNames;
     }
 
-    // نقرا العمليات البنكية من الملف
     public static ArrayList<Transaction> readTransactions(String fileName) {
-        // نسوي قائمة نخزن فيها العمليات
+        // نسوي قائمة نخزن فيها العمليات اللي نقراها من الملف
         ArrayList<Transaction> transactions = new ArrayList<>();
+
         try {
             // نفتح ملف العمليات للقراءة فقط
-            RandomAccessFile file =
-                    new RandomAccessFile(fileName, "r");
-            // نكرر القراءة لين نهاية الملف
+            RandomAccessFile file = new RandomAccessFile(fileName, "r");
+
+            // نستمر في القراءة لين نهاية الملف
             while (file.getFilePointer() < file.length()) {
-                // نقرا رقم العملية
-                String transactionId = file.readUTF();
+                // نقرا أول سطر من العملية
+                String transactionIdLine = file.readLine();
+                // إذا السطر فاضي نتخطاه
+                if (transactionIdLine == null || transactionIdLine.trim().isEmpty()) {
+                    continue;
+                }
+                // إذا السطر مو بداية Transaction نتخطاه
+                if (!transactionIdLine.startsWith("Transaction ID: ")) {
+                    continue;
+                }
+                // ناخذ رقم العملية
+                String transactionId = transactionIdLine.replace("Transaction ID: ", "");
+
                 // نقرا رقم الحساب
-                String accountId = file.readUTF();
+                String accountId = file.readLine().replace("Account ID: ", "");
+
                 // نقرا نوع العملية
-                String transactionType = file.readUTF();
+                String transactionType = file.readLine().replace("Transaction Type: ", "");
+
                 // نقرا مبلغ العملية
-                double amount = file.readDouble();
+                double amount = Double.parseDouble(file.readLine().replace(
+                        "Amount: ", ""));
+
                 // نقرا الرصيد بعد العملية
-                double balanceAfter = file.readDouble();
+                double balanceAfter = Double.parseDouble(file.readLine().replace(
+                        "Balance After: ", ""));
+
                 // نقرا تاريخ ووقت العملية
-                String dateTime = file.readUTF();
-                // نسوي Transaction من البيانات
-                Transaction transaction = new Transaction(
-                        transactionId, accountId, transactionType, amount,
-                        balanceAfter, dateTime);
+                String dateTime = file.readLine().replace("Date Time: ", "");
+
+                // بالبداية نفترض إن ما في حساب ثاني مرتبط
+                String relatedAccountId = "";
+                // نقرا السطر اللي عقب التاريخ
+                String nextLine = file.readLine();
+                // إذا العملية جديدة وفيها Related Account ID
+                if (nextLine != null && nextLine.startsWith("Related Account ID: ")) {
+                    // ناخذ رقم الحساب الثاني
+                    relatedAccountId = nextLine.replace("Related Account ID: ", "");
+                    // نقرا سطر الفاصل ونتخطاه
+                    file.readLine();
+                }
+
+                // ننشئ العملية باستخدام البيانات اللي قريناها
+                Transaction transaction = new Transaction(transactionId, accountId, transactionType,
+                        amount, balanceAfter, dateTime);
+                // نخزن رقم الحساب الثاني إذا كانت العملية Transfer
+                transaction.setRelatedAccountId(relatedAccountId);
                 // نضيف العملية إلى القائمة
                 transactions.add(transaction);
             }
-            // نقفل الملف
+
+            // نقفل الملف بعد ما نخلص
             file.close();
         } catch (IOException e) {
-            // نطبع رسالة إذا صار خطأ
+            // نطبع رسالة إذا صار خطأ أثناء قراءة الملف
             System.out.println("Error reading transaction file.");
         }
-        // نرجع قائمة العمليات
+        // نرجع كل العمليات اللي قريناها
         return transactions;
+    }
+    public static void saveTransaction(Transaction transaction) {
+        // نحفظ العملية البنكية داخل ملف نصي واضح
+        String fileName = "Transactions-" + transaction.getAccountId() + ".txt";
+        // نسوي اسم الملف باستخدام رقم الحساب
+        try {
+            // نبدأ محاولة حفظ العملية
+            RandomAccessFile file = new RandomAccessFile(fileName, "rw");
+            // نفتح ملف العمليات للقراءة والكتابة
+            file.seek(file.length());
+            // نروح لنهاية الملف عشان ما نمسح العمليات القديمة
+            file.writeBytes("Transaction ID: " + transaction.getTransactionId() + "\n");
+            // نحفظ رقم العملية
+            file.writeBytes("Account ID: " + transaction.getAccountId() + "\n");
+            // نحفظ رقم الحساب
+            file.writeBytes("Transaction Type: " + transaction.getTransactionType() + "\n");
+            // نحفظ نوع العملية
+            file.writeBytes("Amount: " + transaction.getAmount() + "\n");
+            // نحفظ مبلغ العملية
+            file.writeBytes("Balance After: " + transaction.getBalanceAfter() + "\n");
+            // نحفظ الرصيد بعد العملية
+            file.writeBytes("Date Time: " + transaction.getDateTime() + "\n");
+            // نحفظ تاريخ ووقت العملية
+            // ناخذ رقم الحساب الثاني المرتبط بالتحويل
+            String relatedAccountId = transaction.getRelatedAccountId();
+
+            // إذا العملية مو Transfer نخلي القيمة فاضية بدل null
+            if (relatedAccountId == null) {
+                relatedAccountId = "";
+            }
+
+              // نحفظ رقم الحساب الثاني المرتبط بالعملية
+            file.writeBytes("Related Account ID: " + relatedAccountId + "\n");
+            file.writeBytes("\n");
+            // نحط فاصل بين كل عملية والعملية اللي بعدها
+            file.close();
+            // نقفل الملف بعد ما نخلص
+            saveTransactionFileName(fileName);
+            // نحفظ اسم ملف العمليات عشان نقدر نحمله مرة ثانية
+        } catch (IOException e) {
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
+            System.out.println("Error saving transaction file.");
+            // نطبع رسالة خطأ
+        }
+    }
+
+    public static void saveTransactionFileName(String fileName) {
+        // نحفظ اسم ملف العمليات داخل قائمة ملفات العمليات
+        try {
+            // نبدأ محاولة حفظ اسم الملف
+            RandomAccessFile file = new RandomAccessFile("TransactionFiles.txt", "rw");
+            // نفتح ملف أسماء العمليات
+            boolean fileNameExists = false;
+            // نفترض إن اسم الملف مو موجود
+            while (file.getFilePointer() < file.length()) {
+                // نمر على كل أسماء الملفات المحفوظة
+                String savedFileName = file.readUTF();
+                // نقرا اسم ملف محفوظ
+                if (savedFileName.equals(fileName)) {
+                    // نتأكد إذا الاسم موجود من قبل
+                    fileNameExists = true;
+                    // نحدد إن الاسم موجود
+                    break;
+                    // نوقف البحث
+                }
+            }
+            if (!fileNameExists) {
+                // إذا الاسم مو موجود من قبل
+                file.seek(file.length());
+                // نروح إلى نهاية الملف
+                file.writeUTF(fileName);
+                // نحفظ اسم الملف
+            }
+            file.close();
+            // نقفل الملف بعد ما نخلص
+        } catch (IOException e) {
+            // إذا صار خطأ أثناء الحفظ ندخل هنا
+            System.out.println("Error saving transaction file name.");
+            // نطبع رسالة خطأ
+        }
+    }
+
+    public static ArrayList<String> readTransactionFileNames() {
+        // نقرا أسماء ملفات العمليات المحفوظة
+        ArrayList<String> transactionFileNames = new ArrayList<>();
+        // نسوي قائمة نخزن فيها أسماء ملفات العمليات
+        try {
+            // نبدأ محاولة قراءة الملف
+            RandomAccessFile file = new RandomAccessFile("TransactionFiles.txt", "r");
+            // نفتح ملف أسماء العمليات للقراءة
+            while (file.getFilePointer() < file.length()) {
+                // نستمر في القراءة لين نهاية الملف
+                String fileName = file.readUTF();
+                // نقرا اسم ملف العمليات
+                transactionFileNames.add(fileName);
+                // نضيف اسم الملف إلى القائمة
+            }
+            file.close();
+            // نقفل الملف بعد ما نخلص
+
+        } catch (IOException e) {
+            // إذا الملف مو موجود أو صار خطأ ندخل هنا
+            System.out.println("No saved transaction files found.");
+            // نطبع رسالة توضيحية
+        }
+        return transactionFileNames;
+        // نرجع قائمة أسماء ملفات العمليات
     }
 }
