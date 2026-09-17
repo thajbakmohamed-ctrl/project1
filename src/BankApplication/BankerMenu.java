@@ -228,11 +228,9 @@ public class BankerMenu {
                     bankSystem.getCustomerService().addCustomer(customer);
                     // نحفظ بيانات العميل داخل ملف
                     FileHandlingUtility.saveCustomer(customer);
-                    // نطبع رسالة تاكيد بعد اضافة العميل بنجاح
-                    System.out.println("Customer added successfully.");
+                    System.out.println("\nCustomer added successfully.");
                     FileHandlingUtility.saveCustomerWithAccounts(customer,
                             bankSystem.getAccountService().getAllAccounts());
-                    // نحفظ بيانات العميل مرة ثانية ومعاها كل الحسابات التابعة له داخل نفس ملف العميل
 
                     break;
                 case 2:

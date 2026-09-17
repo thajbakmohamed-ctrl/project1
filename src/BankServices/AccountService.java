@@ -110,10 +110,13 @@ public class AccountService implements BankingOperations {
 
             // نزيد عدد مرات الـOverdraft
             account.setOverdraftCount(account.getOverdraftCount() + 1);
+            System.out.println("Overdraft applied.");
+            System.out.println("Overdraft fee: $35");
+            System.out.println("Overdraft count: " + account.getOverdraftCount());
             // إذا وصل العميل إلى مرتين Overdraft نعطل الحساب
             if (account.getOverdraftCount() >= 2) {
-
                 account.setActive(false);
+                System.out.println("Account is now inactive due to repeated overdrafts.");
             }
         }
 
@@ -160,10 +163,20 @@ public class AccountService implements BankingOperations {
 
             // نزيد عدد مرات الـOverdraft
             fromAccount.setOverdraftCount(fromAccount.getOverdraftCount() + 1);
+            // نوضح للمستخدم أن ال Overdraft تم تطبيقه
+            System.out.println("Overdraft applied.");
 
-            // بعد مرتين Overdraft نعطل الحساب
+              // نوضح رسوم ال Overdraft
+            System.out.println("Overdraft fee: $35");
+
+              // نوضح عدد مرات ال Overdraft
+            System.out.println("Overdraft count: " + fromAccount.getOverdraftCount());
+
             if (fromAccount.getOverdraftCount() >= 2) {
+                // نعطل الحساب بعد مرتين Overdraft
                 fromAccount.setActive(false);
+                // نوضح للمستخدم سبب تعطيل الحساب
+                System.out.println("Account is now inactive due to repeated overdrafts.");
             }
         }
         // نحدث رصيد الحساب المرسل

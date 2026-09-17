@@ -117,14 +117,11 @@ public class Main {
 
         // نخلي القائمة تستمر بالظهور طول ما running تساوي true
         while (running) {
-            // نطبع اسم النظام
-            System.out.println("Welcome to ACME Bank System");
-            // نطبع خيار تسجيل الدخول
-            System.out.println("1. Login");
-            // نطبع خيار الخروج
-            System.out.println("2. Exit");
-            // نطلب من المستخدم يختار
-            System.out.print("Please select an option: ");
+            System.out.println("\n---------- ACME BANK ----------");
+            System.out.println("\nWelcome to ACME Banking System\n");
+            System.out.println("[1] Login");
+            System.out.println("[2] Exit");
+            System.out.print("\nSelect: ");
             // نقرا اختيار المستخدم من الكيبورد
             int choice = scanner.nextInt();
             // نحدد شنو نسوي حسب اختيار المستخدم
